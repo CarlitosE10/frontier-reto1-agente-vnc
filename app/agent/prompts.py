@@ -201,9 +201,10 @@ conteo o una suma que abarca varias páginas no aparece escrito en ninguna. En e
 el conteo con el texto del OCR, que puede omitir, partir o repetir filas. Reconoce cada página \
 por su indicador (por ejemplo «Página 2») y por los filtros visibles, no por el número de \
 pantalla: la evidencia también trae pantallas de antes de filtrar. Responde sí si cada página que \
-cuenta el agente está en la evidencia o en la captura, los subtotales suman el total, y los \
-códigos que cita para una página aparecen en ella y cumplen lo que pide la tarea. Responde no si \
-falta una página, la suma no da, o un código citado no aparece o no cumple (otro estado, otro \
-cliente).
+cuenta el agente está en la evidencia o en la captura, los subtotales suman el total y ningún \
+código citado aparece con datos que no cumplen la tarea. Responde no si falta una página, si la \
+suma no da o si un código citado aparece con otro estado, otro cliente u otro periodo. Que un \
+código no se encuentre tal cual en el OCR no basta para responder no: el OCR confunde caracteres \
+(2 y 7, V y vV).
 - razon: una o dos frases con los datos concretos que justifican tu respuesta.
 """
