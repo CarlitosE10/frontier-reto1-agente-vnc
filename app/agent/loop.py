@@ -10,10 +10,12 @@ vuelo.
 
 import asyncio
 import contextlib
+import itertools
 import logging
 from collections import deque
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 
 from PIL import Image
 
@@ -53,6 +55,7 @@ MAX_INVALID_REPLIES = 3  # respuestas inválidas seguidas antes de terminar con 
 EVIDENCE_PINNED = 10  # listados marcados por el VLM que se conservan como evidencia
 EVIDENCE_MAX_CHARS = 20_000  # tope del texto de evidencia que recibe la verificación
 TEXT_CHARS = 200  # largo máximo de observaciones y textos en el historial y el progreso
+TYPED_SIMILARITY = 0.7  # parecido mínimo entre una palabra escrita y la que lee el OCR
 
 
 async def run_agent(
@@ -620,8 +623,11 @@ class _Evidence:
 def text_visible(typed: str, screen_text: str) -> bool:
     """`typed` aparece en `screen_text`: entero sin espacios, o al menos la mitad de sus palabras.
 
-    El OCR puede partir o leer mal alguna palabra, y un campo angosto puede cortar el final; por
-    eso basta con la mitad.
+    El OCR lee mal el texto de un campo enfocado (el borde del foco lo deforma: «Aha Torfes» por
+    «Ana Torres») y puede partir una palabra en dos. Por eso una palabra de 4 letras o más cuenta
+    si se parece a una palabra de la pantalla, o a dos seguidas unidas, y basta con la mitad. En 93
+    escrituras reales de las trazas, así no hubo avisos falsos y sí se detectó el texto que no entró
+    (E1 en la corrida A).
     """
     words = fold_tokens(typed)
     if not words:
@@ -629,8 +635,17 @@ def text_visible(typed: str, screen_text: str) -> bool:
     screen_words = fold_tokens(screen_text)
     if "".join(words) in "".join(screen_words):
         return True
-    seen = set(screen_words)
-    return 2 * sum(word in seen for word in words) >= len(words)
+    candidates = set(screen_words) | {a + b for a, b in itertools.pairwise(screen_words)}
+
+    def seen(word: str) -> bool:
+        if word in candidates:
+            return True
+        return len(word) >= 4 and any(
+            SequenceMatcher(None, word, candidate).ratio() >= TYPED_SIMILARITY
+            for candidate in candidates
+        )
+
+    return 2 * sum(map(seen, words)) >= len(words)
 
 
 def _ocr(image: Image.Image) -> str:

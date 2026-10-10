@@ -574,6 +574,8 @@ async def test_typed_text_on_the_screen_gets_no_warning(env, screens):
         ("Papelería Los Andes", "Razón social Papeleria Los Andes NIT", True),  # sin tilde
         ("3001234567", "Teléfono 300 123 4567", True),  # el OCR partió el número
         ("Calle 45 # 12-30", "Dirección Calle 45 + 12-30", True),  # `#` mal leído
+        ("Ana Torres", "Nombre | Aha Torfes | Todos", True),  # campo enfocado, OCR real
+        ("Papelería Los Andes", "Razón social | PARE leríS Los ARETES |", True),  # OCR real
         ("Papelería Los Andes", "Crear cliente Razón social NIT Teléfono", False),
         ("901234567", "NIT Teléfono Ciudad", False),
     ],
