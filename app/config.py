@@ -50,8 +50,10 @@ class Settings(BaseSettings):
     irreversible_keywords: Annotated[list[str], NoDecode] = [
         "guardar",
         "aplicar",
+        "grabar",
         "crear",
         "registrar",
+        "actualizar",
         "aceptar",
         "confirmar",
         "sí",
@@ -59,6 +61,11 @@ class Settings(BaseSettings):
         "borrar",
         "anular",
         "exportar",
+        "descargar",
+        "generar",
+        "procesar",
+        "aprobar",
+        "finalizar",
         "enviar",
     ]
 

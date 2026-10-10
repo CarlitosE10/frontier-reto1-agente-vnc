@@ -77,7 +77,7 @@ La raíz del repositorio es la raíz del proyecto: todos los comandos se corren 
 | `CHANGE_TIMEOUT_S` | `1.2` | Espera máxima a que la pantalla cambie |
 | `STABLE_INTERVAL_S` / `STABLE_TIMEOUT_S` | `0.25` / `1.5` | Intervalo y tope de la espera de estabilidad |
 | `DIFF_MIN_PIXELS` | `50` | Píxeles distintos para considerar que hubo cambio |
-| `IRREVERSIBLE_KEYWORDS` | `guardar,aplicar,crear,registrar,aceptar,confirmar,sí,eliminar,borrar,anular,exportar,enviar` | Palabras que marcan una acción irreversible |
+| `IRREVERSIBLE_KEYWORDS` | `guardar,aplicar,grabar,crear,registrar,actualizar,aceptar,confirmar,sí,eliminar,borrar,anular,exportar,descargar,generar,procesar,aprobar,finalizar,enviar` | Palabras que marcan una acción irreversible |
 | `HISTORY_STEPS` | `10` | Pasos de historial que ve el VLM |
 | `EVIDENCE_SCREENS` | `5` | Pantallas recientes que se guardan como evidencia |
 | `TRACE_DIR` | `./traces` | Carpeta de trazas |
