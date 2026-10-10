@@ -438,11 +438,19 @@ class _Run:
             log["error_code"] = ErrorCode.CLICK_NO_EFFECT.value
             result = "sin efecto visible en la pantalla"
             if isinstance(action, Click) and action.efecto is Effect.EDITAR:
-                # El clic de enfoque sobre un campo ya enfocado no cambia nada. Sin este aviso, en
-                # T16 el VLM lo tomaba por un clic fallido y lo repetía hasta LOOP_DETECTED (E2).
+                # Un clic de enfoque sobre un campo ya enfocado no cambia nada, y el VLM lo repetía
+                # hasta LOOP_DETECTED. No se sabe si el campo ya tenía el foco o si el clic cayó
+                # fuera: se le dice como hipótesis y que lo compruebe al escribir.
                 result += (
-                    "; si era para enfocar un campo, ya está enfocado: no repitas el clic, "
-                    "escribe con type_text"
+                    "; si era para enfocar un campo, puede que ya estuviera enfocado o que el "
+                    "clic no cayó en el campo: escribe con type_text y comprueba en la captura "
+                    "siguiente que el texto quedó en el campo correcto; si no, haz clic en el "
+                    "centro del campo"
+                )
+            elif isinstance(action, TypeText):
+                result += (
+                    "; el texto no llegó a ningún campo (salvo que el campo ya mostrara ese mismo "
+                    "valor): haz clic en el centro del campo y vuelve a escribir"
                 )
         if not stable:
             result += "; la pantalla no terminó de estabilizarse"

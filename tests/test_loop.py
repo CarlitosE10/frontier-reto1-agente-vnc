@@ -13,7 +13,9 @@ import pytest
 from PIL import ImageColor
 
 from app.agent import loop
+from app.agent.gate import Gate
 from app.agent.loop import run_agent
+from app.agent.prompts import VERIFY_ACTION_PROMPT
 from app.config import Settings
 from app.llm.openrouter import ChatResult, LLMError
 from app.models import (
@@ -507,16 +509,65 @@ async def test_loop_detected(env, screens):
     assert summary_call(env)["error_code"] is ErrorCode.LOOP_DETECTED
 
 
-async def test_a_focus_click_without_effect_says_to_type_instead_of_clicking_again(env, screens):
+async def test_a_focus_click_without_effect_suggests_typing_and_checking(env, screens):
     outcome = await run(
         env,
-        screens=screens("white"),  # el campo ya estaba enfocado: el clic no cambia nada
+        screens=screens("white"),  # el clic no cambia nada: ¿ya tenía el foco o cayó fuera?
         script=[click(97, 131, "campo Nombre", efecto="editar"), fail("sin más pasos", [])],
     )
 
     history = prompt(outcome.llm, 1)
     assert "sin efecto visible" in history
-    assert "ya está enfocado: no repitas el clic, escribe con type_text" in history
+    assert "puede que ya estuviera enfocado o que el clic no cayó en el campo" in history
+    assert "comprueba en la captura siguiente que el texto quedó en el campo correcto" in history
+
+
+async def test_typing_without_effect_says_the_text_did_not_arrive(env, screens):
+    outcome = await run(
+        env,
+        screens=screens("white"),
+        script=[type_text("3014445566", "Teléfono"), fail("sin más pasos", [])],
+    )
+
+    history = prompt(outcome.llm, 1)
+    assert "el texto no llegó a ningún campo" in history
+    assert "haz clic en el centro del campo y vuelve a escribir" in history
+
+
+async def test_an_informative_notice_is_closed_after_the_real_gate_approves(env, screens):
+    """Un aviso ajeno a la tarea («Aceptar» cerca del clic) pasa por la verificación real, que lo
+    aprueba, y se cierra. El agente y el revisor leen la regla de avisos en sus prompts."""
+    settings = make_settings()
+    env.words[(640, 480)] = ["Aceptar"]
+    llm = FakeLLM(
+        [
+            click(640, 480, "botón Aceptar del aviso de novedades", fecha_app="10/10/2026"),
+            tool_call(
+                "verificar",
+                {
+                    "dentro_de_tarea": True,
+                    "registro_correcto": True,
+                    "valores_correctos": True,
+                    "razon": "Cierra un aviso informativo que tapa la pantalla.",
+                },
+            ),
+            fail("sin más pasos", []),
+        ]
+    )
+    outcome = await run(
+        env,
+        screens=screens("white", "gray"),
+        llm=llm,
+        gate=Gate(llm, settings),
+        settings=settings,
+    )
+
+    assert outcome.desktop.actions == [("click", {"x": 640, "y": 480, "double": False})]
+    agent_call, verify_call, _ = llm.calls
+    assert "Avisos: si aparece un aviso" in agent_call["messages"][0]["content"]
+    assert verify_call["messages"][0]["content"] == VERIFY_ACTION_PROMPT
+    assert "cerrar un aviso informativo que impide continuar" in VERIFY_ACTION_PROMPT
+    assert outcome.trace.steps[0]["verificacion"]["outcome"] == "approve"
 
 
 async def test_pagination_is_not_a_loop(env, screens):
