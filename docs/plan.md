@@ -152,7 +152,8 @@ class Gate:                                             # hoy verifica con el VL
     async def check_action(self, task: str, action: Action, screen: Image.Image,
                            screen_text: str, evidence: list[str]) -> GateDecision
     async def check_completion(self, task: str, result: FinishTask, screen: Image.Image,
-                               screen_text: str) -> GateDecision
+                               screen_text: str, evidence: list[str] = ()) -> GateDecision
+                                                        # evidence: pantallas anteriores (p. ej., las páginas de un conteo)
 
 # app/agent/summary.py
 def build_summary(result: FinishTask | FailTask | None, error_code: ErrorCode | None) -> str

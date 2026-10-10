@@ -9,6 +9,7 @@ la verificación no responde después de un reintento, bloquea.
 import logging
 import re
 import unicodedata
+from collections.abc import Sequence
 
 from PIL import Image, ImageDraw
 from vncdotool.keys import Key
@@ -193,8 +194,15 @@ class Gate:
         return await self._verify(messages, VERIFY_ACTION_TOOL, list(ACTION_CHECKS))
 
     async def check_completion(
-        self, task: str, result: FinishTask, screen: Image.Image, screen_text: str
+        self,
+        task: str,
+        result: FinishTask,
+        screen: Image.Image,
+        screen_text: str,
+        evidence: Sequence[str] = (),
     ) -> GateDecision:
+        """Chequeo de éxito falso. `evidence` deja respaldar lo que no cabe en la pantalla final,
+        como un conteo sobre varias páginas (E3: el total 45 no aparece en ninguna)."""
         if not self.settings.verify_enabled:
             return _disabled()
         if result.respuesta:
@@ -207,7 +215,8 @@ class Gate:
             f"<tarea>\n{task}\n</tarea>\n\n"
             f"<cierre>\nresumen: {result.resumen}\nrespuesta: {answer}\n"
             f"evidencia citada: {result.evidencia}\n</cierre>\n\n"
-            f"<texto_pantalla>\n{_clip(screen_text, MAX_SCREEN_TEXT_CHARS)}\n</texto_pantalla>"
+            f"<texto_pantalla>\n{_clip(screen_text, MAX_SCREEN_TEXT_CHARS)}\n</texto_pantalla>\n\n"
+            f"<evidencia>\n{_format_evidence(list(evidence))}\n</evidencia>"
         )
         messages = _messages(VERIFY_COMPLETION_PROMPT, text, screen)
         return await self._verify(messages, tool, checks)

@@ -80,8 +80,10 @@ class FakeGate:
         )
         return self._next(self.action_script)
 
-    async def check_completion(self, task, result, screen, screen_text):
-        self.completion_calls.append({"task": task, "result": result, "screen_text": screen_text})
+    async def check_completion(self, task, result, screen, screen_text, evidence=()):
+        self.completion_calls.append(
+            {"task": task, "result": result, "screen_text": screen_text, "evidence": evidence}
+        )
         return self._next(self.completion_script)
 
     def _next(self, script):
@@ -381,6 +383,9 @@ async def test_question_with_answer(env, screens):
     [completion] = outcome.gate.completion_calls
     assert completion["result"].respuesta == ["45"]
     assert completion["screen_text"] == OCR["yellow"]
+    # Un conteo sobre varias páginas no se ve en la pantalla final: la verificación recibe las
+    # pantallas anteriores.
+    assert completion["evidence"] == [OCR["white"], OCR["yellow"]]
 
 
 async def test_blocked_action_is_not_executed(env, screens):

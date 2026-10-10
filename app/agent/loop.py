@@ -351,7 +351,11 @@ class _Run:
 
         async def check() -> GateDecision:
             return await self.gate.check_completion(
-                self.task, action, screen, await self.evidence.current_text()
+                self.task,
+                action,
+                screen,
+                await self.evidence.current_text(),
+                await self.evidence.texts(),
             )
 
         return await self._ask_gate(check, log)

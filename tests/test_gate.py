@@ -278,6 +278,34 @@ async def test_completion_of_a_question_checks_the_answer(settings):
     assert "respuesta: 45" in user_text(call)
 
 
+async def test_completion_sees_the_pages_counted_before_the_final_screen(settings):
+    """E3: el total 45 sale de cuatro páginas y no aparece escrito en ninguna."""
+    llm = FakeLLM([verdict(respuesta_respaldada=True)])
+    finish = FinishTask(
+        observacion="",
+        resumen="Conté las vencidas de Ferretería Ruiz en 4 páginas",
+        respuesta=["45"],
+        evidencia="página 1: 12, página 2: 13, página 3: 15, página 4: 5",
+    )
+    pages = [f"Facturas · Página {n}" for n in range(1, 5)]
+
+    await Gate(llm, settings).check_completion(TASK, finish, SCREEN, "Página 4", pages)
+
+    text = user_text(llm.calls[0])
+    assert "<evidencia>" in text
+    assert all(page in text for page in pages)
+    assert "abarca varias páginas" in VERIFY_COMPLETION_PROMPT
+
+
+async def test_completion_without_evidence_says_so(settings):
+    llm = FakeLLM([verdict(tarea_cumplida=True)])
+    finish = FinishTask(observacion="", resumen="Listo", evidencia="Guardado")
+
+    await Gate(llm, settings).check_completion(TASK, finish, SCREEN, "Guardado")
+
+    assert "<evidencia>\n(sin evidencia)\n</evidencia>" in user_text(llm.calls[0])
+
+
 async def test_completion_of_a_change_checks_the_task(settings):
     razon = "La pantalla sigue mostrando el teléfono viejo."
     llm = FakeLLM([verdict(razon=razon, tarea_cumplida=False)])
