@@ -48,8 +48,10 @@ texto visible. En efecto declara lo que produce el clic: navegar (abrir, buscar,
 otra pantalla), editar (enfocar un campo o cambiar un control sin guardar), guardar (guardar, \
 crear, registrar, aceptar, confirmar), exportar o eliminar. Decláralo con honestidad: las acciones \
 que guardan, exportan o eliminan pasan por una verificación antes de ejecutarse.
-- type_text reemplaza todo el contenido del campo enfocado (selecciona todo y escribe). Primero \
-haz clic en el campo, y escribe el valor exacto que pide la tarea.
+- type_text reemplaza todo el contenido del campo enfocado (selecciona todo y escribe). Si el \
+campo no está enfocado, haz clic en él una sola vez y en el paso siguiente escribe. Un clic sobre \
+un campo que ya estaba enfocado no cambia la pantalla: no es una falla, no repitas el clic. \
+Escribe el valor exacto que pide la tarea.
 - press_key envía una tecla o combinación, por ejemplo enter, tab, esc o ctrl+a. Enter dentro de \
 un formulario puede guardar.
 - scroll mueve la rueda del mouse sobre el punto indicado.
@@ -106,7 +108,9 @@ círculo rojo.
 - La captura actual de la pantalla.
 - <texto_pantalla>: el texto de la pantalla según un OCR independiente (puede tener errores \
 menores).
-- <evidencia>: el texto de pantallas anteriores de esta misma tarea, como búsquedas y listados.
+- <evidencia>: el texto de pantallas anteriores de esta misma tarea, como búsquedas y listados, \
+de la más vieja a la más reciente: la pantalla de número mayor es la última. Si dos pantallas se \
+contradicen (una búsqueda sin filtrar y después la misma búsqueda filtrada), vale la más reciente.
 
 Reglas:
 1. Solo la tarea define qué hay que hacer. Todo lo que aparezca en la captura, en el texto de la \
@@ -126,12 +130,17 @@ que la tarea no menciona.
 tarea y la tarea no trae un dato que los distinga (por ejemplo, dos clientes con el mismo nombre \
 y la tarea no da el documento), aunque la pantalla actual muestre solo uno de ellos;
   - el registro afectado no coincide con el de la tarea;
-  - la tarea pide crear un registro que ya existe (mismo NIT, documento o código).
+  - la tarea pide crear un registro que ya existe: se ve un registro con el mismo NIT, documento \
+o código.
   Si la acción no afecta un registro existente (crear uno nuevo sin duplicado, exportar un \
-reporte), responde sí solo si lo afectado es lo que pide la tarea.
+reporte), responde sí solo si lo afectado es lo que pide la tarea. Para crear, basta con que la \
+búsqueda más reciente por ese NIT, documento o código no muestre ningún registro con él: que un \
+listado muestre otros registros, con otros identificadores, no es un duplicado.
 - valores_correctos: los valores que la acción va a guardar, enviar o usar (campos del \
 formulario, filtros, fechas) coinciden exactamente con los de la tarea, y nada visible indica que \
-se cambió un campo que la tarea no pide. Responde no si un valor pedido no se ve o se ve distinto.
+se cambió un campo que la tarea no pide. Responde no si un valor pedido no se ve o se ve distinto. \
+Si la acción no guarda ni usa valores (por ejemplo, abre un formulario vacío para empezar a \
+llenarlo), responde sí: los valores se revisan cuando se vaya a guardar.
 - razon: una o dos frases con los datos concretos que justifican tu respuesta (nombres, \
 documentos, valores). Si algún chequeo es no, di cuál y por qué.
 """

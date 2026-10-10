@@ -27,6 +27,7 @@ from app.models import (
     Action,
     AgentResult,
     Click,
+    Effect,
     ErrorCode,
     FailTask,
     FinishTask,
@@ -432,6 +433,13 @@ class _Run:
             self.no_effect += 1
             log["error_code"] = ErrorCode.CLICK_NO_EFFECT.value
             result = "sin efecto visible en la pantalla"
+            if isinstance(action, Click) and action.efecto is Effect.EDITAR:
+                # El clic de enfoque sobre un campo ya enfocado no cambia nada. Sin este aviso, en
+                # T16 el VLM lo tomaba por un clic fallido y lo repetía hasta LOOP_DETECTED (E2).
+                result += (
+                    "; si era para enfocar un campo, ya está enfocado: no repitas el clic, "
+                    "escribe con type_text"
+                )
         if not stable:
             result += "; la pantalla no terminó de estabilizarse"
         return after, result

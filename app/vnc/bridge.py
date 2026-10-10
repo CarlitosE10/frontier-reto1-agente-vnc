@@ -95,13 +95,23 @@ class Bridge:
 async def _copy_both_ways(
     reader: asyncio.StreamReader, writer: asyncio.StreamWriter, websocket: ClientConnection
 ) -> None:
-    """Copia hasta que un lado se cierra y luego detiene el otro sentido."""
-    directions = [
-        asyncio.create_task(_tcp_to_websocket(reader, websocket)),
-        asyncio.create_task(_websocket_to_tcp(websocket, writer)),
-    ]
+    """Copia hasta que un lado se cierra y luego detiene el otro sentido.
+
+    Si el que cierra es el escritorio, registra el código y la razón del cierre: es lo único que
+    distingue un visor que tomó la pantalla, un reinicio del escritorio o una red caída
+    (`WS_DISCONNECTED`).
+    """
+    to_websocket = asyncio.create_task(_tcp_to_websocket(reader, websocket))
+    from_websocket = asyncio.create_task(_websocket_to_tcp(websocket, writer))
+    directions = [to_websocket, from_websocket]
     try:
-        await asyncio.wait(directions, return_when=asyncio.FIRST_COMPLETED)
+        done, _ = await asyncio.wait(directions, return_when=asyncio.FIRST_COMPLETED)
+        if from_websocket in done and to_websocket not in done:
+            log.warning(
+                "Puente: el escritorio cerró el WebSocket (código %s, razón %r)",
+                websocket.close_code,
+                websocket.close_reason or "",
+            )
     finally:
         for task in directions:
             task.cancel()

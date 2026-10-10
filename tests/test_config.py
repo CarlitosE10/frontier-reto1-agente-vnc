@@ -26,6 +26,7 @@ EXPECTED_DEFAULTS = {
     "diff_min_pixels": 50,
     "irreversible_keywords": [
         "guardar",
+        "aplicar",
         "crear",
         "registrar",
         "aceptar",

@@ -91,6 +91,27 @@ async def test_closing_the_websocket_closes_the_tcp_side(echo):
         writer.close()
 
 
+async def test_a_close_from_the_desktop_is_logged_with_its_code(echo, caplog):
+    async with Bridge(echo.url) as bridge:
+        reader, writer = await asyncio.open_connection(bridge.host, bridge.port)
+        await read_exactly(reader, len(GREETING))
+        await echo.connections[0].close(code=1008, reason="otro visor tomó la pantalla")
+        assert await asyncio.wait_for(reader.read(), TIMEOUT) == b""
+        writer.close()
+
+    assert "código 1008, razón 'otro visor tomó la pantalla'" in caplog.text
+
+
+async def test_our_own_close_is_not_logged_as_a_desktop_close(echo, caplog):
+    async with Bridge(echo.url) as bridge:
+        reader, writer = await asyncio.open_connection(bridge.host, bridge.port)
+        await read_exactly(reader, len(GREETING))
+        writer.close()
+        await asyncio.wait_for(echo.closed.wait(), TIMEOUT)
+
+    assert "el escritorio cerró" not in caplog.text
+
+
 async def test_close_ends_open_connections_and_stops_listening(echo):
     bridge = Bridge(echo.url)
     await bridge.start()

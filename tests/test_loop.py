@@ -502,6 +502,18 @@ async def test_loop_detected(env, screens):
     assert summary_call(env)["error_code"] is ErrorCode.LOOP_DETECTED
 
 
+async def test_a_focus_click_without_effect_says_to_type_instead_of_clicking_again(env, screens):
+    outcome = await run(
+        env,
+        screens=screens("white"),  # el campo ya estaba enfocado: el clic no cambia nada
+        script=[click(97, 131, "campo Nombre", efecto="editar"), fail("sin más pasos", [])],
+    )
+
+    history = prompt(outcome.llm, 1)
+    assert "sin efecto visible" in history
+    assert "ya está enfocado: no repitas el clic, escribe con type_text" in history
+
+
 async def test_pagination_is_not_a_loop(env, screens):
     outcome = await run(
         env,

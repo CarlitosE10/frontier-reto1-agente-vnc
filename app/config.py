@@ -49,6 +49,7 @@ class Settings(BaseSettings):
     diff_min_pixels: NonNegativeInt = 50
     irreversible_keywords: Annotated[list[str], NoDecode] = [
         "guardar",
+        "aplicar",
         "crear",
         "registrar",
         "aceptar",

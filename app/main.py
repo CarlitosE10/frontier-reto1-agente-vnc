@@ -46,6 +46,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             "task_time_budget_s": settings.task_time_budget_s,
             "task_max_steps": settings.task_max_steps,
             "task_max_cost_usd": settings.task_max_cost_usd,
+            "irreversible_keywords": settings.irreversible_keywords,
         },
     )
     try:
