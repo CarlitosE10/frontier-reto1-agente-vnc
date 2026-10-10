@@ -8,7 +8,7 @@ import httpx
 import pytest
 from fastapi import FastAPI
 
-from app import api, tasks
+from app import api, tasks, tracing
 from app.agent import summary
 from app.api import router
 from app.config import Settings
@@ -59,6 +59,7 @@ def _pending(function, *args) -> bool:
 def summary_stand_ins(monkeypatch):
     if _pending(summary.sanitize, "", []):
         monkeypatch.setattr(api, "sanitize", stand_in_sanitize)
+        monkeypatch.setattr(tracing, "sanitize", stand_in_sanitize)
     if _pending(summary.build_summary, None, ErrorCode.CANCELLED):
         monkeypatch.setattr(tasks, "build_summary", stand_in_build_summary)
 
@@ -436,3 +437,42 @@ async def test_timeout_ends_fallida_with_budget_exhausted(make_client, screens):
     clicks = len(desktop.actions)
     await asyncio.sleep(0.05)
     assert len(desktop.actions) == clicks
+
+
+# --- Traza ---------------------------------------------------------------------------------------
+
+
+async def test_traza_returns_the_steps_of_the_task(make_client, screens):
+    async def agent(record, desktop_factory, llm, gate, trace, cancel, settings):
+        async with FakeDesktop(screens) as desktop:
+            captura = trace.screenshot(await desktop.screenshot(), "paso 1")
+            trace.step(paso=1, captura=captura, observacion=f"Login con {PASSWORD}")
+        return AgentResult(status=TaskStatus.TERMINADA, summary="Listo.", cost_usd=0.01, steps=1)
+
+    client = await make_client(agent)
+    task_id = await submit(client)
+    await final_status(client, task_id)
+
+    response = await client.get(f"/tasks/{task_id}/traza", headers=AUTH)
+
+    assert response.status_code == 200
+    assert PASSWORD not in response.text
+    start, step, end = response.json()
+    assert (start["evento"], start["tarea"]) == ("inicio", task_body()["tarea"])
+    assert step["paso"] == 1
+    assert step["captura"].endswith(f"{task_id}/001-paso-1.png")
+    assert (end["evento"], end["estado"], end["resumen"]) == ("fin", "terminada", "Listo.")
+
+
+async def test_traza_records_the_end_of_a_cancelled_task(make_client, screens):
+    agent = ClickingAgent(screens)
+    client = await make_client(agent)
+    first = await submit(client)
+    await wait_until(lambda: agent.connected(first))
+    await submit(client)
+    await final_status(client, first)
+
+    steps = (await client.get(f"/tasks/{first}/traza", headers=AUTH)).json()
+
+    assert [step["evento"] for step in steps] == ["inicio", "fin"]
+    assert (steps[-1]["estado"], steps[-1]["error_code"]) == ("fallida", "CANCELLED")

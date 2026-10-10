@@ -108,6 +108,7 @@ class TaskRunner:
         return job.trace if job else None
 
     async def _run(self, job: _Job) -> None:
+        self._trace(job, evento="inicio", tarea=job.record.request.tarea)
         try:
             result = await asyncio.wait_for(self._run_locked(job), self._timeout_s)
         except TimeoutError:
@@ -165,3 +166,13 @@ class TaskRunner:
                 "duracion_s": round((datetime.now(UTC) - record.created_at).total_seconds(), 3),
             },
         )
+        self._trace(
+            job, evento="fin", estado=status, error_code=code, cost_usd=cost_usd, resumen=summary
+        )
+
+    def _trace(self, job: _Job, **fields) -> None:
+        # La traza es para depurar: si no se puede escribir, la tarea sigue igual.
+        try:
+            job.trace.step(**fields)
+        except Exception:
+            logger.exception("no se pudo escribir la traza", extra={"task_id": job.record.id})
