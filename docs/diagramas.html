@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Diagramas de arquitectura</title>
+<style>
+  body { background: #ffffff; color: #1a1a1a; font-family: system-ui, sans-serif; margin: 0 auto; max-width: 1200px; padding: 16px; }
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1.1rem; margin-top: 2rem; }
+  pre.mermaid { background: none; overflow-x: auto; }
+</style>
+</head>
+<body>
+<h1>Agente VNC para sistemas legacy · Diagramas</h1>
+<section><h2>Diagrama de componentes</h2><pre class="mermaid">flowchart TB
+    EV["Evaluador / cliente HTTP"]
+
+    subgraph SVC["Servicio del agente · 1 contenedor · 1 worker"]
+        API["API FastAPI&lt;br/&gt;auth Bearer · contrato estricto"]
+        STORE[("Registro de tareas&lt;br/&gt;en memoria")]
+        RUN["Ejecutor de tareas&lt;br/&gt;asyncio · candado por escritorio&lt;br/&gt;270 s · cancelación"]
+
+        subgraph AGENTE["Ciclo del agente"]
+            ORQ["Orquestador&lt;br/&gt;observar → decidir → controlar → actuar → verificar"]
+            PER["Percepción&lt;br/&gt;captura · espera de cambio y estabilidad&lt;br/&gt;diff de píxeles · OCR Tesseract"]
+            S1["System 1 · código&lt;br/&gt;esquema · límites · acciones irreversibles&lt;br/&gt;evidencia · formateador · saneador"]
+            ACT["Actuador&lt;br/&gt;clic 150 ms · ctrl+a + texto · teclas"]
+        end
+
+        VNC["Cliente VNC&lt;br/&gt;vncdotool"]
+        BRIDGE["Puente local&lt;br/&gt;TCP ↔ WebSocket"]
+        TRACE[("Trazas&lt;br/&gt;JSONL + capturas")]
+    end
+
+    subgraph OPENROUTER["OpenRouter"]
+        VLM["System 2 · VLM configurable&lt;br/&gt;Claude Haiku 5.5 por defecto"]
+    end
+
+    subgraph DESK["Escritorio remoto"]
+        WS["wss://…/websockify"]
+        APP["Navegador kiosko&lt;br/&gt;app legacy · 1280×800"]
+    end
+
+    EV --&gt;|"POST /tasks · GET /tasks/id"| API
+    API &lt;--&gt; STORE
+    API --&gt; RUN
+    RUN --&gt; ORQ
+    ORQ --&gt; PER
+    ORQ --&gt;|"captura + tarea + historial"| VLM
+    VLM --&gt;|"una acción por paso"| ORQ
+    ORQ --&gt; S1
+    S1 -.-&gt;|"verificación aparte de acciones irreversibles"| VLM
+    ORQ --&gt; ACT
+    PER --&gt; VNC
+    ACT --&gt; VNC
+    VNC --&gt;|"RFB sobre TCP local"| BRIDGE
+    BRIDGE --&gt;|"RFB sobre WSS"| WS
+    WS --- APP
+    ORQ --&gt; TRACE
+    ORQ --&gt;|"estado + resumen saneado"| STORE
+</pre></section>
+<section><h2>Flujo de una tarea</h2><pre class="mermaid">sequenceDiagram
+    autonumber
+    participant E as Evaluador
+    participant A as API
+    participant R as Ejecutor
+    participant G as Agente
+    participant D as Escritorio (VNC)
+    participant M as VLM
+
+    E-&gt;&gt;A: POST /tasks (tarea, escritorio)
+    A-&gt;&gt;R: registrar tarea en_curso
+    A--&gt;&gt;E: task_id en menos de 200 ms
+    R-&gt;&gt;G: iniciar con candado del escritorio y 270 s
+    G-&gt;&gt;D: abrir puente y conectar VNC
+    loop cada paso hasta terminar, fallar o agotar el presupuesto
+        G-&gt;&gt;D: captura estable
+        G-&gt;&gt;M: captura, tarea e historial
+        M--&gt;&gt;G: una acción (click, type, key, finish, fail)
+        opt acción irreversible
+            G-&gt;&gt;M: verificación aparte con tarea, acción, OCR y evidencia
+            M--&gt;&gt;G: sí o no por chequeo, con razón
+        end
+        G-&gt;&gt;D: ejecutar acción
+        G-&gt;&gt;D: verificar efecto con diff
+    end
+    G-&gt;&gt;M: chequeo de éxito falso (solo si terminó)
+    G-&gt;&gt;D: desconectar
+    G-&gt;&gt;R: estado final y resumen saneado
+    E-&gt;&gt;A: GET /tasks/id cada 5 s
+    A--&gt;&gt;E: estado y resumen
+</pre></section>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: false, theme: 'default' });
+  mermaid.run({ querySelector: '.mermaid' });
+</script>
+</body>
+</html>
