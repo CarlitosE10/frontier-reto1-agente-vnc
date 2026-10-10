@@ -4,7 +4,7 @@ import json
 
 import httpx
 
-from eval.trazas import download, summarize, task_ids
+from eval.trazas import download, load, summarize, task_ids
 
 ID_A = "a" * 32
 ID_B = "0123456789abcdef" * 2
@@ -110,3 +110,15 @@ async def test_download_saves_each_trace_without_secrets(tmp_path):
     assert saved == [tmp_path / f"{ID_A}.json"]
     data = json.loads(saved[0].read_text())
     assert data == [{"evento": "inicio", "tarea": "*** visible"}]
+
+
+def test_load_reads_a_list_an_object_with_traza_and_jsonl(tmp_path):
+    events = [{"evento": "inicio", "tarea": "t"}, {"evento": "fin", "estado": "fallida"}]
+    as_list = tmp_path / "a.json"
+    as_list.write_text(json.dumps(events))
+    as_object = tmp_path / "b.json"
+    as_object.write_text(json.dumps({"estado": {"estado": "fallida"}, "traza": events}))
+    as_lines = tmp_path / "c.jsonl"
+    as_lines.write_text("\n".join(json.dumps(e) for e in events))
+
+    assert load(as_list) == load(as_object) == load(as_lines) == events
