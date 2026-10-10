@@ -203,13 +203,16 @@ def summarize(name: str, events: list[dict]) -> str:
     return "\n".join(lines)
 
 
-def _load(path: Path) -> list[dict]:
-    """Una traza en JSON (lista de eventos, como la guarda el arnés) o en JSONL."""
+def load(path: Path) -> list[dict]:
+    """Una traza en JSON (lista de eventos, como la guarda el arnés, u objeto con la lista en
+    `traza`, junto al estado de la tarea) o en JSONL."""
     text = path.read_text(encoding="utf-8")
     try:
         data = json.loads(text)
     except json.JSONDecodeError:
         return [json.loads(line) for line in text.splitlines() if line.strip()]
+    if isinstance(data, dict):
+        data = data.get("traza")
     return data if isinstance(data, list) else []
 
 
@@ -233,7 +236,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "resumir":
         for path in args.trazas:
-            print(summarize(path.stem, _load(path)))
+            print(summarize(path.stem, load(path)))
         return 0
 
     ids = task_ids(args.fuente.read_text(encoding="utf-8"))
