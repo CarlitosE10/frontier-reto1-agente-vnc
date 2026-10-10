@@ -51,7 +51,7 @@ pyproject.toml
 .gitignore
 README.md               # cómo correr el proyecto
 docs/                   # diseño, plan, diagramas y exportaciones
-frontier-reto-1/        # enunciado (README_Reto.md), rúbrica y pruebas oficiales; no se modifica
+frontier-reto-1/        # enunciado, rúbrica y pruebas oficiales; solo local, no se versiona
 ```
 
 La raíz del repositorio es la raíz del proyecto: todos los comandos se corren desde ahí, y el `.env` vive ahí (está en `.gitignore`).

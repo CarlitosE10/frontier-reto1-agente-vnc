@@ -122,6 +122,7 @@ async def harness_for(
 # --- Casos ---
 
 
+@pytest.mark.skipif(not OFFICIAL_DIR.exists(), reason="frontier-reto-1/ es solo local y no se versiona")
 def test_official_cases_are_copied_verbatim():
     for official in OFFICIAL_DIR.glob("*.json"):
         assert (CASES_DIR / official.name).read_bytes() == official.read_bytes()

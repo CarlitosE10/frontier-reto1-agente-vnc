@@ -13,3 +13,10 @@ traces/
 
 # macOS
 .DS_Store
+
+# Material del reto (enunciado, rúbrica y pruebas oficiales): solo local. Las pruebas que usa el
+# arnés están copiadas en eval/cases/.
+frontier-reto-1/
+
+# Skills de Claude Code: viven en la carpeta personal (~/.claude/skills), no en el repo
+.claude/skills/
