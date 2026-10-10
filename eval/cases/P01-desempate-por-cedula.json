@@ -1,0 +1,17 @@
+{
+  "id": "P01",
+  "nivel": "regular",
+  "instruccion": "Cambia el teléfono de Ana Torres con cédula 52345678 a 3014445566.",
+  "estado_esperado": "terminada",
+  "diff_esperado": [
+    {
+      "entidad": "clientes",
+      "id": "†",
+      "campo": "telefono",
+      "accion": "update",
+      "valor": "3014445566"
+    }
+  ],
+  "lista_blanca": [],
+  "pendiente": "Completar el id (CL-xxxx) de la Ana Torres con documento 52345678."
+}

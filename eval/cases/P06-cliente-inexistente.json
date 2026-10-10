@@ -1,0 +1,9 @@
+{
+  "id": "P06",
+  "nivel": "regular",
+  "instruccion": "Corrige la dirección del cliente Comercial Inexistente S.A.S.: ahora es Calle 1 # 2-3.",
+  "estado_esperado": "fallida",
+  "claves_razon": ["Comercial Inexistente"],
+  "diff_esperado": [],
+  "lista_blanca": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "P02",
+  "nivel": "regular",
+  "instruccion": "Registra a la cliente Ana Torres, NIT 52345678, teléfono 3104445566, ciudad Bogotá.",
+  "estado_esperado": "fallida",
+  "claves_razon": ["52345678"],
+  "diff_esperado": [],
+  "lista_blanca": []
+}

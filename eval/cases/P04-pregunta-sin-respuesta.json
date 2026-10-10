@@ -1,0 +1,9 @@
+{
+  "id": "P04",
+  "nivel": "regular",
+  "instruccion": "¿En qué año se fundó Ferretería Ruiz?",
+  "estado_esperado": "fallida",
+  "claves_razon": ["Ferretería Ruiz"],
+  "diff_esperado": [],
+  "lista_blanca": []
+}
