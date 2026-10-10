@@ -48,6 +48,20 @@ _NEAR_MARGIN_Y = 24
 _STRIP = " \t:;,.¿?¡!()[]{}|\"'«»—–-_*=+"
 
 
+def check_available() -> None:
+    """Lanza RuntimeError si Tesseract no está instalado o no tiene el idioma `spa`.
+
+    Sin OCR el agente igual corre, pero a ciegas: todo clic pasa por la verificación y la
+    evidencia queda vacía. Por eso la app no arranca sin él.
+    """
+    try:
+        languages = pytesseract.get_languages(config="")
+    except pytesseract.TesseractNotFoundError:
+        raise RuntimeError("Tesseract no está instalado (tesseract-ocr)") from None
+    if LANG not in languages:
+        raise RuntimeError(f"Tesseract no tiene el idioma {LANG!r} (tesseract-ocr-{LANG})")
+
+
 def read_text(image: Image.Image, box: tuple[int, int, int, int] | None = None) -> str:
     """Texto de la captura, o de la región `box` (izquierda, arriba, derecha, abajo), por
     renglones."""

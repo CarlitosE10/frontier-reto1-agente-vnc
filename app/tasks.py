@@ -40,6 +40,9 @@ Agent = Callable[
     Awaitable[AgentResult],
 ]
 
+# Cómo se abre un escritorio: (url, contraseña, settings) → sesión sin conectar.
+DesktopFactory = Callable[[str, str, Settings], DesktopSession]
+
 # El agente respeta TASK_TIME_BUDGET_S por su cuenta. Este margen es el tope duro por si no lo
 # hace: 270 + 15 = 285 s, antes de que el evaluador deje de consultar a los 300 s.
 TIMEOUT_MARGIN_S = 15.0
@@ -73,11 +76,14 @@ class TaskRunner:
         settings: Settings,
         agent: Agent = run_agent,
         timeout_margin_s: float = TIMEOUT_MARGIN_S,
+        llm: OpenRouterClient | None = None,
+        desktop: DesktopFactory = DesktopSession,
     ) -> None:
         self.settings = settings
         self._agent = agent
         self._timeout_s = settings.task_time_budget_s + timeout_margin_s
-        self._llm = OpenRouterClient(settings)
+        self._llm = llm if llm is not None else OpenRouterClient(settings)
+        self._desktop = desktop
         self._jobs: dict[str, _Job] = {}
         self._active: dict[str, _Job] = {}  # escritorio → la última tarea que lo pidió
         self._locks: defaultdict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
@@ -107,6 +113,17 @@ class TaskRunner:
         job = self._jobs.get(task_id)
         return job.trace if job else None
 
+    async def aclose(self) -> None:
+        """Al apagar: cancela las tareas en curso, espera a que se desconecten del escritorio y
+        cierra el cliente del VLM. Las tareas canceladas quedan `fallida` con `CANCELLED`."""
+        running = [job.task for job in self._jobs.values() if not job.task.done()]
+        for job in self._jobs.values():
+            job.cancel.set()
+        for task in running:
+            task.cancel()
+        await asyncio.gather(*running, return_exceptions=True)
+        await self._llm.aclose()
+
     async def _run(self, job: _Job) -> None:
         self._trace(job, evento="inicio", tarea=job.record.request.tarea)
         try:
@@ -134,7 +151,7 @@ class TaskRunner:
         async with self._locks[job.desktop]:
             job.record.progress = "Conectando con el escritorio"
             password = job.record.request.escritorio.password.get_secret_value()
-            desktop_factory = partial(DesktopSession, job.desktop, password, self.settings)
+            desktop_factory = partial(self._desktop, job.desktop, password, self.settings)
             gate = Gate(self._llm, self.settings)
             return await self._agent(
                 job.record, desktop_factory, self._llm, gate, job.trace, job.cancel, self.settings
