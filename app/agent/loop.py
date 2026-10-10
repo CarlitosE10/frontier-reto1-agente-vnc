@@ -446,11 +446,11 @@ class _Run:
                     "ningún campo tuviera el foco"
                 )
                 if self.last_click:
-                    result += f" (el clic anterior en {self.last_click} no cayó en el campo)"
+                    result += f" porque el clic anterior, en {self.last_click}, cayera fuera"
                 result += (
                     ". Mira la captura: si el texto no está dentro del campo, haz clic en el "
-                    "centro del recuadro del campo, dentro de su borde y en otro punto, y vuelve "
-                    "a escribir"
+                    "centro del recuadro del campo, en un punto distinto del anterior, y vuelve a "
+                    "escribir; si está, sigue"
                 )
         elif isinstance(action, Wait):
             result = "la pantalla no cambió"
@@ -625,7 +625,7 @@ def text_visible(typed: str, screen_text: str) -> bool:
 
     El OCR lee mal el texto de un campo enfocado (el borde del foco lo deforma: «Aha Torfes» por
     «Ana Torres») y puede partir una palabra en dos. Por eso una palabra de 4 letras o más cuenta
-    si se parece a una palabra de la pantalla, o a dos seguidas unidas, y basta con la mitad. En 93
+    si se parece a una palabra de la pantalla, o a dos seguidas unidas, y basta con la mitad. En 94
     escrituras reales de las trazas, así no hubo avisos falsos y sí se detectó el texto que no entró
     (E1 en la corrida A).
     """

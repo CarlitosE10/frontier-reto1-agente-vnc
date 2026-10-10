@@ -549,7 +549,7 @@ async def test_typed_text_missing_from_the_screen_points_at_the_last_click(env, 
 
     history = prompt(outcome.llm, 2)
     assert "según el OCR el texto escrito no aparece en la pantalla" in history
-    assert "el clic anterior en (963, 136) no cayó en el campo" in history
+    assert "el clic anterior, en (963, 136), cayera fuera" in history
     assert outcome.trace.steps[1]["texto_visible"] is False
 
 
