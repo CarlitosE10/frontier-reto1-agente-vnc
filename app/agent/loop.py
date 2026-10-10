@@ -12,6 +12,7 @@ import asyncio
 import contextlib
 import itertools
 import logging
+import re
 from collections import deque
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
@@ -56,6 +57,8 @@ EVIDENCE_PINNED = 10  # listados marcados por el VLM que se conservan como evide
 EVIDENCE_MAX_CHARS = 20_000  # tope del texto de evidencia que recibe la verificación
 TEXT_CHARS = 200  # largo máximo de observaciones y textos en el historial y el progreso
 TYPED_SIMILARITY = 0.7  # parecido mínimo entre una palabra escrita y la que lee el OCR
+POINT_TOLERANCE = 20  # distancia, en las unidades del VLM, para que dos puntos sean el mismo
+_POINT = re.compile(r"\((\d{1,4})\s*,\s*(\d{1,4})\)")
 
 
 async def run_agent(
@@ -118,6 +121,7 @@ class _Run:
         self.no_effect = 0
         self.in_form = False  # hubo escritura desde el último clic: Enter puede guardar
         self.last_click: str | None = None  # punto del último clic, como lo envió el VLM
+        self.failed_points: set[str] = set()  # puntos de clics que no tuvieron efecto
         self.fecha_app: str | None = None
         self.fecha_app_known = False
         self.size = (0, 0)
@@ -193,6 +197,7 @@ class _Run:
         self._check_cancel()
         try:
             action = self._parse(chat)
+            check_point(action, chat.arguments)
         except ActionError as error:
             self.invalid_replies += 1
             log["accion"] = chat.arguments
@@ -234,7 +239,17 @@ class _Run:
         self._check_cancel()
         after, result = await self._execute(desktop, action, screen, log)
         if isinstance(action, Click):
-            self.last_click = f"({chat.arguments.get('x')}, {chat.arguments.get('y')})"
+            point = f"({chat.arguments.get('x')}, {chat.arguments.get('y')})"
+            if log.get("error_code") == ErrorCode.CLICK_NO_EFFECT.value:
+                if point in self.failed_points:
+                    # E1 en vivo: el VLM repitió el mismo punto sin efecto creyendo que era otro.
+                    result += (
+                        f"; ATENCIÓN: {point} es el mismo punto que ya no tuvo efecto antes. Mide "
+                        "de nuevo el centro del elemento en la captura, escríbelo en observacion "
+                        "como (x, y) y revisa que x e y sean los mismos que envías"
+                    )
+                self.failed_points.add(point)
+            self.last_click = point
         self._end_step(log, label, result)
         return after
 
@@ -466,7 +481,7 @@ class _Run:
                     "; si era para enfocar un campo, puede que ya estuviera enfocado o que el "
                     "clic no cayó en el campo: escribe con type_text y comprueba en la captura "
                     "siguiente que el texto quedó en el campo correcto; si no, haz clic en el "
-                    "centro del campo"
+                    "centro del campo y escribe en observacion el punto que mediste, como (x, y)"
                 )
             elif isinstance(action, TypeText):
                 result += (
@@ -618,6 +633,30 @@ class _Evidence:
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+
+
+def check_point(action: Action, arguments: dict) -> None:
+    """Lanza ActionError si la observación del clic nombra un punto que coincide con el enviado en
+    un eje y no en el otro: es un error de dígito al escribir la coordenada.
+
+    E1 en vivo: «Campo Razón social visible en (463,136); hago clic en su centro real», y la
+    herramienta llegó con x=963, tres veces. Un punto que no coincide en ningún eje se ignora:
+    puede ser otro elemento que la observación menciona.
+    """
+    if not isinstance(action, Click):
+        return
+    sent = arguments.get("x"), arguments.get("y")
+    if not all(isinstance(value, int | float) for value in sent):
+        return
+    for match in _POINT.finditer(f"{action.observacion} {action.objetivo}"):
+        named = int(match[1]), int(match[2])
+        close = [abs(a - b) <= POINT_TOLERANCE for a, b in zip(named, sent, strict=True)]
+        if close.count(True) == 1:
+            raise ActionError(
+                f"tu observación dice ({named[0]}, {named[1]}) pero el clic va a "
+                f"({sent[0]:g}, {sent[1]:g}): revisa los dígitos de la coordenada y envía el clic "
+                "otra vez"
+            )
 
 
 def text_visible(typed: str, screen_text: str) -> bool:

@@ -584,6 +584,48 @@ def test_text_visible(typed, screen, visible):
     assert loop.text_visible(typed, screen) is visible
 
 
+async def test_a_click_far_from_the_point_its_observation_names_is_not_executed(env, screens):
+    """E1 en vivo: la observación dice (463,136) y la herramienta llega con x=963."""
+    slip = click(
+        963,
+        136,
+        "Razón social o nombre",
+        efecto="editar",
+        observacion="Campo Razón social visible en (463,136); hago clic en su centro real.",
+    )
+    outcome = await run(env, screens=screens("white"), script=[slip, fail("sin más pasos", [])])
+
+    assert outcome.desktop.actions == []
+    history = prompt(outcome.llm, 1)
+    assert "tu observación dice (463, 136) pero el clic va a (963, 136)" in history
+
+
+async def test_a_point_of_another_element_in_the_observation_is_not_a_slip(env, screens):
+    other = click(80, 40, "botón Nuevo", observacion="Guardar está en (600, 700); abro Nuevo")
+    outcome = await run(
+        env, screens=screens("white", "gray"), script=[other, fail("sin más pasos", [])]
+    )
+
+    assert outcome.desktop.actions == [("click", {"x": 80, "y": 40, "double": False})]
+
+
+async def test_repeating_a_point_without_effect_asks_to_measure_again(env, screens):
+    outcome = await run(
+        env,
+        screens=screens("white"),
+        script=[
+            click(963, 136, "campo Nombre", efecto="editar"),
+            click(963, 136, "campo Nombre", efecto="editar"),
+            fail("sin más pasos", []),
+        ],
+    )
+
+    assert "es el mismo punto" not in prompt(outcome.llm, 1)
+    history = prompt(outcome.llm, 2)
+    assert "ATENCIÓN: (963, 136) es el mismo punto que ya no tuvo efecto antes" in history
+    assert "escríbelo en observacion como (x, y)" in history
+
+
 async def test_an_informative_notice_is_closed_after_the_real_gate_approves(env, screens):
     """Un aviso ajeno a la tarea («Aceptar» cerca del clic) pasa por la verificación real, que lo
     aprueba, y se cierra. El agente y el revisor leen la regla de avisos en sus prompts."""
