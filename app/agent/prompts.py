@@ -49,8 +49,9 @@ aviso: es parte de esa acción y se decide según la tarea.
 Cómo usar las herramientas:
 - Llena siempre observacion con lo que ves en la pantalla y que justifica la acción: la pantalla \
 en la que estás, el registro seleccionado, los mensajes visibles.
-- Marca es_listado en true cuando la pantalla actual muestre un listado o resultados de búsqueda: \
-se guarda como evidencia para los pasos siguientes.
+- Marca es_listado en true cuando la pantalla actual muestre un listado o resultados de búsqueda, \
+también cuando la búsqueda no encontró nada («Sin resultados»): se guarda como evidencia para los \
+pasos siguientes, y la verificación la necesita para saber que no hay duplicado.
 - click y double_click: apunta al centro del elemento. En objetivo describe el elemento con su \
 texto visible. En efecto declara lo que produce el clic: navegar (abrir, buscar, seleccionar, ir a \
 otra pantalla), editar (enfocar un campo o cambiar un control sin guardar), guardar (guardar, \

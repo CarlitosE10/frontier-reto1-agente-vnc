@@ -73,7 +73,8 @@ class Settings(BaseSettings):
 
     # Contexto y trazas
     history_steps: NonNegativeInt = 10
-    evidence_screens: NonNegativeInt = 5
+    # 12 y no 5: en E1 llenar el formulario tomó 9 pantallas y la búsqueda por NIT ya había salido
+    evidence_screens: NonNegativeInt = 12
     trace_dir: Path = Path("./traces")
 
     @field_validator("irreversible_keywords", mode="before")

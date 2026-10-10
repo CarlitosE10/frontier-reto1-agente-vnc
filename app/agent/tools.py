@@ -29,7 +29,7 @@ _ES_LISTADO = {
     "type": "boolean",
     "description": (
         "true si la pantalla actual muestra un listado o resultados de búsqueda que conviene "
-        "recordar como evidencia."
+        "recordar como evidencia, también si la búsqueda no encontró nada."
     ),
 }
 _COORD = "Coordenada {axis} del punto, en el sistema que indica el prompt del sistema."
