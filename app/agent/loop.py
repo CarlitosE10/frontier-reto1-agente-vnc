@@ -10,14 +10,17 @@ vuelo.
 
 import asyncio
 import contextlib
+import itertools
 import logging
+import re
 from collections import deque
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 
 from PIL import Image
 
-from app.agent.gate import Gate, is_irreversible
+from app.agent.gate import Gate, fold_tokens, is_irreversible
 from app.agent.prompts import system_prompt
 from app.agent.summary import build_summary, sanitize
 from app.agent.tools import TOOLS, ActionError, parse_action
@@ -53,6 +56,9 @@ MAX_INVALID_REPLIES = 3  # respuestas inválidas seguidas antes de terminar con 
 EVIDENCE_PINNED = 10  # listados marcados por el VLM que se conservan como evidencia
 EVIDENCE_MAX_CHARS = 20_000  # tope del texto de evidencia que recibe la verificación
 TEXT_CHARS = 200  # largo máximo de observaciones y textos en el historial y el progreso
+TYPED_SIMILARITY = 0.7  # parecido mínimo entre una palabra escrita y la que lee el OCR
+POINT_TOLERANCE = 20  # distancia, en las unidades del VLM, para que dos puntos sean el mismo
+_POINT = re.compile(r"\((\d{1,4})\s*,\s*(\d{1,4})\)")
 
 
 async def run_agent(
@@ -114,6 +120,8 @@ class _Run:
         self.invalid_replies = 0
         self.no_effect = 0
         self.in_form = False  # hubo escritura desde el último clic: Enter puede guardar
+        self.last_click: str | None = None  # punto del último clic, como lo envió el VLM
+        self.failed_points: set[str] = set()  # puntos de clics que no tuvieron efecto
         self.fecha_app: str | None = None
         self.fecha_app_known = False
         self.size = (0, 0)
@@ -189,6 +197,7 @@ class _Run:
         self._check_cancel()
         try:
             action = self._parse(chat)
+            check_point(action, chat.arguments)
         except ActionError as error:
             self.invalid_replies += 1
             log["accion"] = chat.arguments
@@ -229,6 +238,18 @@ class _Run:
         self._check_time()
         self._check_cancel()
         after, result = await self._execute(desktop, action, screen, log)
+        if isinstance(action, Click):
+            point = f"({chat.arguments.get('x')}, {chat.arguments.get('y')})"
+            if log.get("error_code") == ErrorCode.CLICK_NO_EFFECT.value:
+                if point in self.failed_points:
+                    # E1 en vivo: el VLM repitió el mismo punto sin efecto creyendo que era otro.
+                    result += (
+                        f"; ATENCIÓN: {point} es el mismo punto que ya no tuvo efecto antes. Mide "
+                        "de nuevo el centro del elemento en la captura, escríbelo en observacion "
+                        "como (x, y) y revisa que x e y sean los mismos que envías"
+                    )
+                self.failed_points.add(point)
+            self.last_click = point
         self._end_step(log, label, result)
         return after
 
@@ -431,6 +452,21 @@ class _Run:
             self.no_effect = 0
             self.evidence.add(after)
             result = f"la pantalla cambió ({log['diff_pct']} % de los píxeles)"
+            if isinstance(action, TypeText) and not await self._typed_text_visible(action, after):
+                # E1: el clic de enfoque cayó fuera del campo y ctrl+a seleccionó toda la página.
+                # La pantalla cambió (la selección), pero el texto no entró en ningún campo.
+                log["texto_visible"] = False
+                result += (
+                    "; pero según el OCR el texto escrito no aparece en la pantalla: puede que "
+                    "ningún campo tuviera el foco"
+                )
+                if self.last_click:
+                    result += f" porque el clic anterior, en {self.last_click}, cayera fuera"
+                result += (
+                    ". Mira la captura: si el texto no está dentro del campo, haz clic en el "
+                    "centro del recuadro del campo, en un punto distinto del anterior, y vuelve a "
+                    "escribir; si está, sigue"
+                )
         elif isinstance(action, Wait):
             result = "la pantalla no cambió"
         else:
@@ -445,7 +481,7 @@ class _Run:
                     "; si era para enfocar un campo, puede que ya estuviera enfocado o que el "
                     "clic no cayó en el campo: escribe con type_text y comprueba en la captura "
                     "siguiente que el texto quedó en el campo correcto; si no, haz clic en el "
-                    "centro del campo"
+                    "centro del campo y escribe en observacion el punto que mediste, como (x, y)"
                 )
             elif isinstance(action, TypeText):
                 result += (
@@ -455,6 +491,22 @@ class _Run:
         if not stable:
             result += "; la pantalla no terminó de estabilizarse"
         return after, result
+
+    async def _typed_text_visible(self, action: TypeText, after: Image.Image) -> bool:
+        """El OCR de la pantalla siguiente muestra lo que se escribió. Si el OCR falla, se da
+        por visible: el aviso es una ayuda, no un bloqueo."""
+        try:
+            async with self._budget():
+                if self.evidence.enabled:
+                    text = await self.evidence.current_text()  # ya arrancó con `add(after)`
+                else:
+                    text = await asyncio.to_thread(_ocr, after)
+        except _Stop:
+            raise
+        except Exception:
+            logger.warning("Falló el OCR del texto escrito", exc_info=True)
+            return True
+        return text_visible(action.texto, text)
 
     async def _settle(
         self, desktop: DesktopSession, before: Image.Image
@@ -546,6 +598,10 @@ class _Evidence:
         self._tasks: set[asyncio.Task[str]] = set()
         self._count = 0
 
+    @property
+    def enabled(self) -> bool:
+        return self._enabled
+
     def add(self, image: Image.Image) -> None:
         if not self._enabled:
             return
@@ -577,6 +633,58 @@ class _Evidence:
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+
+
+def check_point(action: Action, arguments: dict) -> None:
+    """Lanza ActionError si la observación del clic nombra un punto que coincide con el enviado en
+    un eje y no en el otro: es un error de dígito al escribir la coordenada.
+
+    E1 en vivo: «Campo Razón social visible en (463,136); hago clic en su centro real», y la
+    herramienta llegó con x=963, tres veces. Un punto que no coincide en ningún eje se ignora:
+    puede ser otro elemento que la observación menciona.
+    """
+    if not isinstance(action, Click):
+        return
+    sent = arguments.get("x"), arguments.get("y")
+    if not all(isinstance(value, int | float) for value in sent):
+        return
+    for match in _POINT.finditer(f"{action.observacion} {action.objetivo}"):
+        named = int(match[1]), int(match[2])
+        close = [abs(a - b) <= POINT_TOLERANCE for a, b in zip(named, sent, strict=True)]
+        if close.count(True) == 1:
+            raise ActionError(
+                f"tu observación dice ({named[0]}, {named[1]}) pero el clic va a "
+                f"({sent[0]:g}, {sent[1]:g}): revisa los dígitos de la coordenada y envía el clic "
+                "otra vez"
+            )
+
+
+def text_visible(typed: str, screen_text: str) -> bool:
+    """`typed` aparece en `screen_text`: entero sin espacios, o al menos la mitad de sus palabras.
+
+    El OCR lee mal el texto de un campo enfocado (el borde del foco lo deforma: «Aha Torfes» por
+    «Ana Torres») y puede partir una palabra en dos. Por eso una palabra de 4 letras o más cuenta
+    si se parece a una palabra de la pantalla, o a dos seguidas unidas, y basta con la mitad. En 94
+    escrituras reales de las trazas, así no hubo avisos falsos y sí se detectó el texto que no entró
+    (E1 en la corrida A).
+    """
+    words = fold_tokens(typed)
+    if not words:
+        return True
+    screen_words = fold_tokens(screen_text)
+    if "".join(words) in "".join(screen_words):
+        return True
+    candidates = set(screen_words) | {a + b for a, b in itertools.pairwise(screen_words)}
+
+    def seen(word: str) -> bool:
+        if word in candidates:
+            return True
+        return len(word) >= 4 and any(
+            SequenceMatcher(None, word, candidate).ratio() >= TYPED_SIMILARITY
+            for candidate in candidates
+        )
+
+    return 2 * sum(map(seen, words)) >= len(words)
 
 
 def _ocr(image: Image.Image) -> str:

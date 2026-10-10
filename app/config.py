@@ -80,7 +80,8 @@ class Settings(BaseSettings):
 
     # Contexto y trazas
     history_steps: NonNegativeInt = 10
-    evidence_screens: NonNegativeInt = 5
+    # 12 y no 5: en E1 llenar el formulario tomó 9 pantallas y la búsqueda por NIT ya había salido
+    evidence_screens: NonNegativeInt = 12
     trace_dir: Path = Path("./traces")
 
     # Canario (T17): una tarea de solo lectura cada CANARY_INTERVAL_S. 0 lo apaga.

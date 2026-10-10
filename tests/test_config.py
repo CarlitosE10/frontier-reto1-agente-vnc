@@ -47,7 +47,7 @@ EXPECTED_DEFAULTS = {
         "enviar",
     ],
     "history_steps": 10,
-    "evidence_screens": 5,
+    "evidence_screens": 12,
     "trace_dir": Path("traces"),
     "canary_interval_s": 0,
     "canary_desktop_url": "",
