@@ -60,6 +60,7 @@ AGENT_URL=$AGENTE uv run python -m eval.harness E3 E5
 ## 3. Antes de la evaluación oculta (antes de las 20:00)
 
 - [ ] `/health` responde `{"ok":true}` y una tarea real terminó bien en la URL pública.
+- [ ] El canario está encendido (`CANARY_INTERVAL_S=900`) y su última corrida dice `canario ok` (sección 7).
 - [ ] El log `agente listo` muestra el modelo, el modelo de verificación y las palabras clave esperadas.
 - [ ] Nadie tiene noVNC abierto sobre un escritorio en el que trabaje el agente (`WS_DISCONNECTED`, ver [incidente.md](incidente.md)).
 - [ ] Saldo de OpenRouter suficiente: medido, unos US$0.01–0.02 por tarea, con tope de `TASK_MAX_COST_USD` (US$0.15).
@@ -125,7 +126,41 @@ Los pasos de la sección 2.8 del diseño, con lo que hicimos a las 15:55, cuando
 5. **Correr el arnés** con los casos afectados y después con todos.
 6. **Volver a desplegar** (sección 1) y verificar (sección 2).
 
-## 7. Reglas de operación
+## 7. Canario
+
+Dentro del servicio desplegado, cada `CANARY_INTERVAL_S` segundos (900 = 15 min) el agente corre una tarea de solo lectura contra **nuestro** escritorio, por el mismo camino que una tarea del evaluador. Si no termina `terminada`, o el resumen no trae `CANARY_EXPECTED`, registra `ALERTA canario` con el código de error. La primera corrida es 60 s después de arrancar. Cuesta lo de una tarea corta, unos US$0.01, es decir, unos US$0.04 por hora.
+
+Variables, en Railway:
+
+| Variable | Valor |
+|---|---|
+| `CANARY_INTERVAL_S` | `900` (`0` lo apaga) |
+| `CANARY_DESKTOP_URL` / `CANARY_DESKTOP_PASSWORD` | Los de nuestro escritorio (`EVAL_DESKTOP_URL` / `EVAL_DESKTOP_PASSWORD`) |
+| `CANARY_TASK` | Una pregunta que ningún caso del arnés cambia, por ejemplo «¿En qué ciudad está el cliente Distribuciones El Faro?» |
+| `CANARY_EXPECTED` | El texto que tiene que traer el resumen, por ejemplo `respuesta: Bogotá` |
+
+Para cargar la contraseña sin que quede en el historial, pásala por la entrada estándar desde `.env`:
+
+```bash
+set -a; source .env; set +a
+printf %s "$EVAL_DESKTOP_PASSWORD" | railway variable set CANARY_DESKTOP_PASSWORD --stdin --service agente-vnc --skip-deploys
+```
+
+Leer el canario:
+
+```bash
+railway logs --service agente-vnc --lines 2000 --filter "canario"
+```
+
+Cada línea trae el `task_id`: con él, `GET /tasks/{id}/traza` muestra qué falló. Las tareas del canario también aparecen como `tarea finalizada`. Al bajar las trazas de la evaluación (sección 4), sepáralas por el `task_id` de las líneas `canario` o por la tarea del evento `inicio`.
+
+**Apágalo (`CANARY_INTERVAL_S=0`) antes de correr el arnés o probar en local contra el mismo escritorio:** dos agentes sobre una pantalla se pisan (`WS_DISCONNECTED`, `CANCELLED` o clics cruzados). Vuelve a encenderlo al terminar.
+
+**Probar la alarma:** pon una contraseña equivocada en `CANARY_DESKTOP_PASSWORD`. El cambio de variable reinicia el servicio, y a los 60 s el log tiene que mostrar `ALERTA canario` con `error_code=VNC_AUTH_FAILED`. Después vuelve a cargar la contraseña buena.
+
+Una corrida suelta, sin levantar el servicio (con las variables `CANARY_*` en `.env`): `uv run python -m app.canary`.
+
+## 8. Reglas de operación
 
 - **Un solo escritorio, una sola sesión.** Mientras corre el arnés o una tarea, nadie abre noVNC ni lanza otra tarea sobre el mismo escritorio.
 - **Secretos solo en `.env` y en las variables de Railway.** Nunca en comandos que queden en el historial, en documentos ni en commits. El token del equipo va en `TEAM_TOKEN` y `AGENT_TOKEN`; el del escritorio, en `EVAL_DESKTOP_TOKEN`.

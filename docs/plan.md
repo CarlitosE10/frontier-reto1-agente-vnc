@@ -82,6 +82,9 @@ La raíz del repositorio es la raíz del proyecto: todos los comandos se corren 
 | `HISTORY_STEPS` | `10` | Pasos de historial que ve el VLM |
 | `EVIDENCE_SCREENS` | `5` | Pantallas recientes que se guardan como evidencia |
 | `TRACE_DIR` | `./traces` | Carpeta de trazas |
+| `CANARY_INTERVAL_S` | `0` | Cada cuánto corre el canario (T17); `0` lo apaga |
+| `CANARY_DESKTOP_URL` / `CANARY_DESKTOP_PASSWORD` | vacío | Escritorio propio del canario |
+| `CANARY_TASK` / `CANARY_EXPECTED` | vacío | Tarea de solo lectura y texto que tiene que traer su resumen |
 
 ### 2.2 Tipos (`app/models.py`)
 

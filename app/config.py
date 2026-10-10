@@ -7,7 +7,14 @@ Las variables son exactamente las de `.env.example`.
 from pathlib import Path
 from typing import Annotated, Literal
 
-from pydantic import NonNegativeInt, PositiveFloat, PositiveInt, SecretStr, field_validator
+from pydantic import (
+    NonNegativeFloat,
+    NonNegativeInt,
+    PositiveFloat,
+    PositiveInt,
+    SecretStr,
+    field_validator,
+)
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 # Las variables vacías cuentan como no definidas: toman el valor por defecto o, si son
@@ -75,6 +82,13 @@ class Settings(BaseSettings):
     history_steps: NonNegativeInt = 10
     evidence_screens: NonNegativeInt = 5
     trace_dir: Path = Path("./traces")
+
+    # Canario (T17): una tarea de solo lectura cada CANARY_INTERVAL_S. 0 lo apaga.
+    canary_interval_s: NonNegativeFloat = 0
+    canary_desktop_url: str = ""
+    canary_desktop_password: SecretStr = SecretStr("")
+    canary_task: str = ""
+    canary_expected: str = ""
 
     @field_validator("irreversible_keywords", mode="before")
     @classmethod

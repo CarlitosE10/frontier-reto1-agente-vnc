@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
+from pydantic import SecretStr, ValidationError
 
 from app.config import EvalSettings, Settings
 
@@ -49,6 +49,11 @@ EXPECTED_DEFAULTS = {
     "history_steps": 10,
     "evidence_screens": 5,
     "trace_dir": Path("traces"),
+    "canary_interval_s": 0,
+    "canary_desktop_url": "",
+    "canary_desktop_password": SecretStr(""),
+    "canary_task": "",
+    "canary_expected": "",
 }
 
 
