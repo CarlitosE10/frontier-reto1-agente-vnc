@@ -227,8 +227,20 @@ def redact(text: str, secrets: dict[str, str]) -> str:
 
 
 def trace_metrics(entries: list[dict]) -> tuple[int | None, float | None]:
-    """Pasos (el mayor número de paso) y costo (la suma de los costos por paso) de la traza."""
+    """Pasos (el mayor número de paso) y costo de la traza.
+
+    El costo es el `cost_usd` del evento "fin", que escribe el ejecutor (T10) y ya incluye el VLM
+    y las verificaciones: sumarlo con los costos por paso lo contaría dos veces. Solo si no hay
+    evento "fin" (la traza quedó a medias) se suman los costos por paso.
+    """
     steps = [entry[key] for entry in entries for key in _STEP_KEYS if type(entry.get(key)) is int]
+    totals = [
+        entry["cost_usd"]
+        for entry in entries
+        if entry.get("evento") == "fin" and type(entry.get("cost_usd")) in (int, float)
+    ]
+    if totals:
+        return (max(steps) if steps else None, round(totals[-1], 6))
     costs = [
         entry[key]
         for entry in entries

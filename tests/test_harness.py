@@ -242,6 +242,19 @@ def test_trace_metrics_and_error_codes():
     assert error_codes("NOT_A_CODE VLM_ERRORS") == []
 
 
+def test_trace_cost_comes_from_the_fin_event():
+    """La traza real: pasos del ciclo (T09) con costo_usd y el evento "fin" del ejecutor (T10)."""
+    trace = [
+        {"evento": "inicio", "tarea": "¿Cuántas facturas vencidas tiene Ferretería Ruiz?"},
+        {"paso": 1, "costo_usd": 0.002},
+        {"paso": 2, "costo_usd": 0.0035, "costo_verificacion_usd": 0.0015},
+        {"paso": 3, "costo_usd": 0.004, "costo_verificacion_usd": 0.002},
+        {"evento": "fin", "estado": "terminada", "error_code": None, "cost_usd": 0.0095},
+    ]
+    assert trace_metrics(trace) == (3, 0.0095)  # no 0.019: el total no se suma con los pasos
+    assert trace_metrics(trace[:-1]) == (3, 0.0095)  # sin "fin", la suma de los pasos
+
+
 # --- Ejecución contra el agente simulado ---
 
 
