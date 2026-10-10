@@ -1,0 +1,2 @@
+caso,corrida,resultado,estado_esperado,estado,check,checks_fallidos,respuesta_ok,claves_ok,fugas,post_ms,duracion_s,pasos,costo_usd,codigos_error,task_id,traza,motivos,resumen
+E2,1,PASA,terminada,terminada,sí,,,,,363,63.4,12,0.0126,,5157be1838fe4140a1b7446fabc0ed1b,trazas/E2-r1.json,,"Se corrigió la dirección del cliente CL-0007 (Distribuciones El Faro, NIT 900456123) de ""Carrera 15 # 85-40"" a ""Calle 80 # 24-15"" y se aplicó el cambio con Aplicar."

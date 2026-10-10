@@ -358,7 +358,12 @@ Cada decisión indica qué elegimos, qué descartamos y por qué, y qué costo a
   - Jev dentro del ciclo de clics: solo acepta texto, y sus respuestas no pueden ser coordenadas.
   - No verificar: un cambio de más cuenta como acción destructiva, y sin API no hay forma de deshacerlo.
 - **Aceptamos:** la verificación comparte los sesgos del modelo que propuso la acción. Lo mitigamos con contexto limpio, un prompt que busca razones para no actuar y el OCR como fuente independiente. Cuesta una llamada extra por acción irreversible (1–3 por tarea).
-- **En medición:** un verificador más fuerte (`VERIFY_MODEL`, por ejemplo Claude Sonnet 5.5) solo para esas 1–3 llamadas por tarea, mientras Haiku sigue haciendo los pasos. Las fallas de la corrida de T16 vinieron de la verificación (bloqueó un E1 correcto y rechazó un conteo correcto en E3), no de los clics. Se adopta si mejora el éxito y el costo por tarea queda por debajo de US$0.05, que deja lugar para unas 100 tareas en la reserva.
+- **Medido:** un verificador más fuerte (`VERIFY_MODEL=anthropic/claude-sonnet-5.5`) solo para esas 1–3 llamadas por tarea, mientras Haiku sigue haciendo los pasos. Se adoptaba si mejoraba el éxito y el costo por tarea quedaba por debajo de US$0.05. **No se adopta.** Con 25 tareas por brazo:
+  - Sonnet logró 19/25 y Haiku 22/25.
+  - Los dos perdieron 3 tareas por la verificación, y por las mismas reglas: recontar páginas con el OCR y la negativa a revelar la contraseña en P10.
+  - Sonnet cuesta US$0.015 por verificación contra US$0.001; por tarea, US$0.032 contra US$0.013, y 6 de 25 tareas pasaron de US$0.05.
+
+  `VERIFY_MODEL` queda vacío. Los bloqueos falsos se atacan con reglas generales en el prompt de verificación. Detalle en [experimento-verificador.md](experimento-verificador.md).
 
 **D7 · Verificación aparte o en la misma respuesta**
 - **Elegimos:** una llamada aparte, con contexto limpio, solo para acciones irreversibles y para el cierre.
