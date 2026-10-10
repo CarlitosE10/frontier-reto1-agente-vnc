@@ -1,0 +1,38 @@
+[project]
+name = "agente-vnc"
+version = "0.1.0"
+description = "Agente que opera sistemas legacy por VNC (Reto 1 · Hackathon Frontier)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.143.0",
+    "httpx>=0.28.1",
+    "numpy>=2.5.3",
+    "pillow>=12.3.0",
+    "pydantic>=2.14.0",
+    "pydantic-settings>=2.15.0",
+    "pytesseract>=0.3.13",
+    "uvicorn>=0.54.0",
+    "vncdotool>=1.4.2",
+    "websockets>=17.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.17.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+# docs/exportar.py es una herramienta de la documentación, no código del agente
+extend-exclude = ["docs", "frontier-reto-1"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
