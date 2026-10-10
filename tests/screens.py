@@ -48,3 +48,42 @@ def new_client_form() -> tuple[Image.Image, tuple[int, int, int, int]]:
     button = (560, 360, 700, 404)
     _button(draw, button, "Guardar")
     return image, button
+
+
+# Estado de E5: la búsqueda de "Ana Torres" devolvió dos clientes, y el agente abrió uno.
+E5_TASK = "Cambia el teléfono de Ana Torres a 3014445566."
+E5_SEARCH_OCR = (
+    "SIGECOM · Clientes\n"
+    "Buscar: Ana Torres   [Buscar]\n"
+    "Código   Nombre       Documento    Teléfono     Ciudad\n"
+    "CL-0012  Ana Torres   52345678     3104567890   Bogotá\n"
+    "CL-0031  Ana Torres   1019876543   3159876543   Medellín\n"
+    "2 resultados"
+)
+E5_FORM_OCR = (
+    "SIGECOM · Clientes · Editar cliente CL-0012\n"
+    "Código CL-0012\n"
+    "Nombre Ana Torres\n"
+    "Documento 52345678\n"
+    "Teléfono 3014445566\n"
+    "Ciudad Bogotá\n"
+    "Guardar Cancelar"
+)
+E5_SAVE_BUTTON = (560, 420, 700, 464)
+
+
+def e5_edit_form() -> Image.Image:
+    """Formulario de Ana Torres (52345678) con el teléfono nuevo ya escrito, listo para guardar."""
+    image, draw = _window("SIGECOM · Clientes · Editar cliente CL-0012")
+    values = [
+        ("Código", "CL-0012"),
+        ("Nombre", "Ana Torres"),
+        ("Documento", "52345678"),
+        ("Teléfono", "3014445566"),
+        ("Ciudad", "Bogotá"),
+    ]
+    for row, (label, value) in enumerate(values):
+        _field(draw, 100 + row * 60, label, value)
+    _button(draw, E5_SAVE_BUTTON, "Guardar")
+    _button(draw, (720, 420, 860, 464), "Cancelar")
+    return image
