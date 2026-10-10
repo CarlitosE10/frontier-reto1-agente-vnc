@@ -1,0 +1,176 @@
+{
+  "captura": "tests/fixtures/sigecom/clientes-lista.png",
+  "pantalla": "Comercial › Maestros › Clientes, sin filtros (página 1)",
+  "objetivos": [
+    {
+      "id": "nombre_filtro",
+      "descripcion": "el campo de texto Nombre del filtro de búsqueda",
+      "box": [
+        24,
+        122,
+        171,
+        140
+      ]
+    },
+    {
+      "id": "nit_filtro",
+      "descripcion": "el campo NIT del filtro de búsqueda",
+      "box": [
+        186,
+        122,
+        333,
+        140
+      ]
+    },
+    {
+      "id": "ciudad_filtro",
+      "descripcion": "el desplegable Ciudad del filtro",
+      "box": [
+        348,
+        122,
+        495,
+        140
+      ]
+    },
+    {
+      "id": "buscar",
+      "descripcion": "el botón Buscar",
+      "box": [
+        509,
+        119,
+        578,
+        140
+      ]
+    },
+    {
+      "id": "limpiar",
+      "descripcion": "el botón Limpiar",
+      "box": [
+        592,
+        120,
+        664,
+        140
+      ]
+    },
+    {
+      "id": "nuevo_cliente",
+      "descripcion": "el botón Nuevo cliente",
+      "box": [
+        15,
+        175,
+        127,
+        195
+      ]
+    },
+    {
+      "id": "exportar",
+      "descripcion": "el botón Exportar",
+      "box": [
+        136,
+        175,
+        215,
+        195
+      ]
+    },
+    {
+      "id": "enlace_cl0080",
+      "descripcion": "el enlace del código CL-0080",
+      "box": [
+        19,
+        346,
+        76,
+        360
+      ]
+    },
+    {
+      "id": "enlace_castro",
+      "descripcion": "el código del cliente Almacén Castro Central",
+      "box": [
+        19,
+        599,
+        76,
+        613
+      ]
+    },
+    {
+      "id": "tel_ramirez_ltda",
+      "descripcion": "la celda con el teléfono de Abarrotes Ramírez Ltda.",
+      "box": [
+        930,
+        387,
+        1128,
+        408
+      ]
+    },
+    {
+      "id": "ciudad_cl0111",
+      "descripcion": "la celda de la ciudad del cliente CL-0111",
+      "box": [
+        714,
+        617,
+        928,
+        638
+      ]
+    },
+    {
+      "id": "encabezado_telefono",
+      "descripcion": "el encabezado de la columna Teléfono",
+      "box": [
+        930,
+        204,
+        1128,
+        224
+      ]
+    },
+    {
+      "id": "siguiente",
+      "descripcion": "el botón Siguiente de la paginación",
+      "box": [
+        165,
+        693,
+        250,
+        713
+      ]
+    },
+    {
+      "id": "menu_cartera",
+      "descripcion": "el menú Cartera de la barra de menús",
+      "box": [
+        168,
+        35,
+        240,
+        61
+      ]
+    },
+    {
+      "id": "menu_herramientas",
+      "descripcion": "el menú Herramientas de la barra de menús",
+      "box": [
+        241,
+        35,
+        352,
+        61
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "anterior_habilitado",
+      "pregunta": "¿El botón Anterior de la paginación está habilitado?",
+      "opciones": [
+        "sí",
+        "no"
+      ],
+      "respuesta": "no"
+    },
+    {
+      "id": "ayuda_es_campo",
+      "pregunta": "El texto «Busca partes del texto. Distingue tildes…» que está bajo los filtros, ¿es un campo editable o una etiqueta?",
+      "opciones": [
+        "campo editable",
+        "etiqueta"
+      ],
+      "respuesta": "etiqueta"
+    }
+  ]
+}

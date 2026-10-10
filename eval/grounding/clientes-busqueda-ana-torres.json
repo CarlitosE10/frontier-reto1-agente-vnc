@@ -1,0 +1,156 @@
+{
+  "captura": "tests/fixtures/sigecom/clientes-busqueda-ana-torres.png",
+  "pantalla": "Clientes, buscando «Ana Torres»: dos homónimos (E5)",
+  "objetivos": [
+    {
+      "id": "enlace_cl0031",
+      "descripcion": "el enlace CL-0031 de la Ana Torres de Cali",
+      "box": [
+        19,
+        254,
+        76,
+        268
+      ]
+    },
+    {
+      "id": "enlace_nit_52345678",
+      "descripcion": "el código de la Ana Torres con NIT 52345678",
+      "box": [
+        19,
+        231,
+        76,
+        245
+      ]
+    },
+    {
+      "id": "nombre_filtro",
+      "descripcion": "el campo Nombre del filtro, que contiene «Ana Torres»",
+      "box": [
+        24,
+        122,
+        171,
+        140
+      ]
+    },
+    {
+      "id": "nit_filtro",
+      "descripcion": "el campo NIT del filtro de búsqueda",
+      "box": [
+        186,
+        122,
+        333,
+        140
+      ]
+    },
+    {
+      "id": "buscar",
+      "descripcion": "el botón Buscar",
+      "box": [
+        509,
+        119,
+        578,
+        140
+      ]
+    },
+    {
+      "id": "limpiar",
+      "descripcion": "el botón Limpiar",
+      "box": [
+        592,
+        120,
+        664,
+        140
+      ]
+    },
+    {
+      "id": "encabezado_nit",
+      "descripcion": "el encabezado de la columna NIT de la tabla",
+      "box": [
+        546,
+        204,
+        767,
+        224
+      ]
+    },
+    {
+      "id": "tel_cl0031",
+      "descripcion": "la celda con el teléfono de la Ana Torres de Cali",
+      "box": [
+        908,
+        249,
+        1129,
+        270
+      ]
+    },
+    {
+      "id": "ciudad_cl0005",
+      "descripcion": "la celda de la ciudad del cliente CL-0005",
+      "box": [
+        769,
+        226,
+        906,
+        247
+      ]
+    },
+    {
+      "id": "nuevo_cliente",
+      "descripcion": "el botón Nuevo cliente",
+      "box": [
+        15,
+        175,
+        127,
+        195
+      ]
+    },
+    {
+      "id": "exportar",
+      "descripcion": "el botón Exportar",
+      "box": [
+        136,
+        175,
+        215,
+        195
+      ]
+    },
+    {
+      "id": "menu_comercial",
+      "descripcion": "el menú Comercial de la barra de menús",
+      "box": [
+        79,
+        35,
+        167,
+        61
+      ]
+    },
+    {
+      "id": "rotulo_clientes",
+      "descripcion": "el rótulo «Clientes» a la derecha, encima de la tabla",
+      "box": [
+        1215,
+        178,
+        1266,
+        191
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "siguiente_habilitado",
+      "pregunta": "¿El botón Siguiente de la paginación está habilitado?",
+      "opciones": [
+        "sí",
+        "no"
+      ],
+      "respuesta": "no"
+    },
+    {
+      "id": "nombre_con_texto",
+      "pregunta": "¿El campo Nombre del filtro está vacío o tiene texto?",
+      "opciones": [
+        "vacío",
+        "tiene texto"
+      ],
+      "respuesta": "tiene texto"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "captura": "tests/fixtures/sigecom/dialogo-descartar-cambios.png",
+  "pantalla": "Ventana emergente «Descartar cambios» sobre el formulario de nuevo cliente",
+  "objetivos": [
+    {
+      "id": "descartar",
+      "descripcion": "el botón Descartar del diálogo",
+      "box": [
+        675,
+        435,
+        764,
+        456
+      ]
+    },
+    {
+      "id": "no",
+      "descripcion": "el botón No del diálogo",
+      "box": [
+        774,
+        436,
+        815,
+        456
+      ]
+    },
+    {
+      "id": "titulo_dialogo",
+      "descripcion": "la barra de título del diálogo «Descartar cambios»",
+      "box": [
+        451,
+        334,
+        828,
+        360
+      ]
+    },
+    {
+      "id": "pregunta",
+      "descripcion": "el texto «¿Descartar cambios?» del diálogo",
+      "box": [
+        461,
+        386,
+        599,
+        402
+      ]
+    },
+    {
+      "id": "volver",
+      "descripcion": "el botón Volver del formulario, detrás del diálogo",
+      "box": [
+        113,
+        379,
+        176,
+        399
+      ]
+    },
+    {
+      "id": "guardar",
+      "descripcion": "el botón Guardar del formulario, detrás del diálogo",
+      "box": [
+        27,
+        378,
+        105,
+        400
+      ]
+    },
+    {
+      "id": "razon_social",
+      "descripcion": "el campo Razón social o nombre del formulario, detrás del diálogo",
+      "box": [
+        28,
+        126,
+        899,
+        146
+      ]
+    },
+    {
+      "id": "menu_archivo",
+      "descripcion": "el menú Archivo de la barra de menús",
+      "box": [
+        6,
+        35,
+        78,
+        61
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "dialogo_abierto",
+      "pregunta": "¿Hay una ventana emergente abierta?",
+      "opciones": [
+        "sí",
+        "no"
+      ],
+      "respuesta": "sí"
+    },
+    {
+      "id": "boton_principal",
+      "pregunta": "¿Qué botón del diálogo está destacado como principal (en azul)?",
+      "opciones": [
+        "Descartar",
+        "No"
+      ],
+      "respuesta": "Descartar"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "captura": "tests/fixtures/sigecom/cliente-cl-0005.png",
+  "pantalla": "Cliente CL-0005 abierto desde la búsqueda, con datos",
+  "objetivos": [
+    {
+      "id": "telefono",
+      "descripcion": "el campo Teléfono, que dice 3112223344",
+      "box": [
+        477,
+        192,
+        899,
+        212
+      ]
+    },
+    {
+      "id": "direccion",
+      "descripcion": "el campo Dirección",
+      "box": [
+        477,
+        236,
+        899,
+        256
+      ]
+    },
+    {
+      "id": "razon_social",
+      "descripcion": "el campo Razón social o nombre, con el valor Ana Torres",
+      "box": [
+        28,
+        148,
+        899,
+        168
+      ]
+    },
+    {
+      "id": "nit",
+      "descripcion": "el campo NIT",
+      "box": [
+        28,
+        192,
+        450,
+        212
+      ]
+    },
+    {
+      "id": "ciudad",
+      "descripcion": "el desplegable Ciudad, que muestra Bogotá",
+      "box": [
+        28,
+        236,
+        450,
+        258
+      ]
+    },
+    {
+      "id": "correo",
+      "descripcion": "el campo Correo, que está vacío",
+      "box": [
+        28,
+        282,
+        450,
+        302
+      ]
+    },
+    {
+      "id": "estado",
+      "descripcion": "el desplegable Estado",
+      "box": [
+        477,
+        282,
+        899,
+        304
+      ]
+    },
+    {
+      "id": "observaciones",
+      "descripcion": "el área de texto Observaciones",
+      "box": [
+        28,
+        328,
+        899,
+        371
+      ]
+    },
+    {
+      "id": "guardar",
+      "descripcion": "el botón Guardar",
+      "box": [
+        27,
+        387,
+        105,
+        408
+      ]
+    },
+    {
+      "id": "volver",
+      "descripcion": "el botón Volver",
+      "box": [
+        113,
+        388,
+        176,
+        408
+      ]
+    },
+    {
+      "id": "menu_cartera",
+      "descripcion": "el menú Cartera de la barra de menús",
+      "box": [
+        168,
+        35,
+        240,
+        61
+      ]
+    },
+    {
+      "id": "usuario",
+      "descripcion": "el texto «Usuario: operador2» de la barra superior",
+      "box": [
+        1143,
+        9,
+        1267,
+        25
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "codigo_es_campo",
+      "pregunta": "El código del cliente (CL-0005), ¿es un campo editable o un texto fijo?",
+      "opciones": [
+        "campo editable",
+        "texto fijo"
+      ],
+      "respuesta": "texto fijo"
+    },
+    {
+      "id": "correo_con_valor",
+      "pregunta": "¿El campo Correo tiene un valor?",
+      "opciones": [
+        "sí",
+        "no"
+      ],
+      "respuesta": "no"
+    }
+  ]
+}

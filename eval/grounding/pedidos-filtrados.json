@@ -1,0 +1,169 @@
+{
+  "captura": "tests/fixtures/sigecom/pedidos-filtrados.png",
+  "pantalla": "Comercial › Ventas › Pedidos, filtrado por Entregado del 01/09/2026 al 30/09/2026 (E4)",
+  "objetivos": [
+    {
+      "id": "cliente_filtro",
+      "descripcion": "el campo Cliente del filtro",
+      "box": [
+        24,
+        122,
+        171,
+        140
+      ]
+    },
+    {
+      "id": "estado_filtro",
+      "descripcion": "el desplegable Estado, que muestra Entregado",
+      "box": [
+        186,
+        122,
+        333,
+        140
+      ]
+    },
+    {
+      "id": "fecha_desde",
+      "descripcion": "el campo Fecha desde",
+      "box": [
+        348,
+        122,
+        495,
+        140
+      ]
+    },
+    {
+      "id": "fecha_hasta",
+      "descripcion": "el campo Fecha hasta",
+      "box": [
+        510,
+        122,
+        657,
+        140
+      ]
+    },
+    {
+      "id": "buscar",
+      "descripcion": "el botón Buscar",
+      "box": [
+        671,
+        119,
+        740,
+        140
+      ]
+    },
+    {
+      "id": "limpiar",
+      "descripcion": "el botón Limpiar",
+      "box": [
+        754,
+        120,
+        826,
+        140
+      ]
+    },
+    {
+      "id": "nuevo_pedido",
+      "descripcion": "el botón Nuevo pedido",
+      "box": [
+        15,
+        156,
+        128,
+        176
+      ]
+    },
+    {
+      "id": "exportar",
+      "descripcion": "el botón Exportar",
+      "box": [
+        137,
+        156,
+        216,
+        176
+      ]
+    },
+    {
+      "id": "enlace_ana_2209",
+      "descripcion": "el código del pedido de Ana Torres del 22/09/2026",
+      "box": [
+        19,
+        235,
+        78,
+        249
+      ]
+    },
+    {
+      "id": "enlace_pd0141",
+      "descripcion": "el enlace del pedido PD-0141",
+      "box": [
+        19,
+        350,
+        78,
+        364
+      ]
+    },
+    {
+      "id": "total_pd0064",
+      "descripcion": "la celda Total del pedido PD-0064",
+      "box": [
+        1083,
+        437,
+        1263,
+        458
+      ]
+    },
+    {
+      "id": "fecha_vargas",
+      "descripcion": "la fecha del pedido de Miscelánea Vargas S.A.S.",
+      "box": [
+        696,
+        529,
+        896,
+        550
+      ]
+    },
+    {
+      "id": "siguiente",
+      "descripcion": "el botón Siguiente de la paginación",
+      "box": [
+        165,
+        674,
+        250,
+        694
+      ]
+    },
+    {
+      "id": "rotulo_pedidos",
+      "descripcion": "el rótulo «Pedidos» a la derecha, encima de la tabla",
+      "box": [
+        1218,
+        159,
+        1266,
+        172
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "estado_seleccionado",
+      "pregunta": "¿Qué estado está seleccionado en el filtro Estado?",
+      "opciones": [
+        "Todos",
+        "Borrador",
+        "Confirmado",
+        "Entregado",
+        "Anulado"
+      ],
+      "respuesta": "Entregado"
+    },
+    {
+      "id": "fecha_hasta_valor",
+      "pregunta": "¿El campo Fecha hasta tiene una fecha escrita o muestra el formato de ejemplo dd/mm/aaaa?",
+      "opciones": [
+        "fecha escrita",
+        "formato de ejemplo"
+      ],
+      "respuesta": "fecha escrita"
+    }
+  ]
+}

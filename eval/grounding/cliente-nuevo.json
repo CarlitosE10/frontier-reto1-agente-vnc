@@ -1,0 +1,147 @@
+{
+  "captura": "tests/fixtures/sigecom/cliente-nuevo.png",
+  "pantalla": "Clientes › Nuevo cliente, formulario vacío",
+  "objetivos": [
+    {
+      "id": "razon_social",
+      "descripcion": "el campo Razón social o nombre",
+      "box": [
+        28,
+        126,
+        899,
+        146
+      ]
+    },
+    {
+      "id": "nit",
+      "descripcion": "el campo NIT",
+      "box": [
+        28,
+        170,
+        450,
+        190
+      ]
+    },
+    {
+      "id": "telefono",
+      "descripcion": "el campo Teléfono",
+      "box": [
+        477,
+        170,
+        899,
+        190
+      ]
+    },
+    {
+      "id": "ciudad",
+      "descripcion": "el desplegable Ciudad",
+      "box": [
+        28,
+        214,
+        450,
+        236
+      ]
+    },
+    {
+      "id": "direccion",
+      "descripcion": "el campo Dirección",
+      "box": [
+        477,
+        214,
+        899,
+        234
+      ]
+    },
+    {
+      "id": "correo",
+      "descripcion": "el campo Correo",
+      "box": [
+        28,
+        260,
+        450,
+        280
+      ]
+    },
+    {
+      "id": "estado",
+      "descripcion": "el desplegable Estado",
+      "box": [
+        477,
+        260,
+        899,
+        282
+      ]
+    },
+    {
+      "id": "observaciones",
+      "descripcion": "el área de texto Observaciones",
+      "box": [
+        28,
+        306,
+        899,
+        349
+      ]
+    },
+    {
+      "id": "guardar",
+      "descripcion": "el botón Guardar",
+      "box": [
+        27,
+        365,
+        105,
+        386
+      ]
+    },
+    {
+      "id": "volver",
+      "descripcion": "el botón Volver",
+      "box": [
+        113,
+        366,
+        176,
+        386
+      ]
+    },
+    {
+      "id": "menu_archivo",
+      "descripcion": "el menú Archivo de la barra de menús",
+      "box": [
+        6,
+        35,
+        78,
+        61
+      ]
+    },
+    {
+      "id": "menu_ayuda",
+      "descripcion": "el menú Ayuda de la barra de menús",
+      "box": [
+        353,
+        35,
+        416,
+        61
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "razon_es_campo",
+      "pregunta": "«Razón social o nombre *», ¿es un campo editable o una etiqueta?",
+      "opciones": [
+        "campo editable",
+        "etiqueta"
+      ],
+      "respuesta": "etiqueta"
+    },
+    {
+      "id": "valor_estado",
+      "pregunta": "¿Qué valor muestra el desplegable Estado?",
+      "opciones": [
+        "Activo",
+        "Inactivo",
+        "(seleccione)"
+      ],
+      "respuesta": "Activo"
+    }
+  ]
+}

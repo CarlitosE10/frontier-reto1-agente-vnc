@@ -1,0 +1,137 @@
+{
+  "captura": "tests/fixtures/sigecom/menu-comercial-ventas.png",
+  "pantalla": "Menú Comercial abierto, con el submenú Ventas desplegado (sobre Facturas)",
+  "objetivos": [
+    {
+      "id": "opcion_pedidos",
+      "descripcion": "la opción Pedidos del submenú Ventas",
+      "box": [
+        289,
+        90,
+        496,
+        116
+      ]
+    },
+    {
+      "id": "opcion_maestros",
+      "descripcion": "la opción Maestros del menú Comercial",
+      "box": [
+        80,
+        63,
+        287,
+        89
+      ]
+    },
+    {
+      "id": "opcion_ventas",
+      "descripcion": "la opción Ventas del menú Comercial",
+      "box": [
+        80,
+        90,
+        287,
+        116
+      ]
+    },
+    {
+      "id": "menu_cartera",
+      "descripcion": "el menú Cartera de la barra de menús",
+      "box": [
+        168,
+        35,
+        240,
+        61
+      ]
+    },
+    {
+      "id": "menu_archivo",
+      "descripcion": "el menú Archivo de la barra de menús",
+      "box": [
+        6,
+        35,
+        78,
+        61
+      ]
+    },
+    {
+      "id": "buscar",
+      "descripcion": "el botón Buscar",
+      "box": [
+        347,
+        120,
+        416,
+        140
+      ]
+    },
+    {
+      "id": "limpiar",
+      "descripcion": "el botón Limpiar",
+      "box": [
+        430,
+        120,
+        502,
+        140
+      ]
+    },
+    {
+      "id": "exportar",
+      "descripcion": "el botón Exportar",
+      "box": [
+        15,
+        156,
+        94,
+        176
+      ]
+    },
+    {
+      "id": "enlace_fv10159",
+      "descripcion": "el enlace de la factura FV-10159",
+      "box": [
+        19,
+        212,
+        84,
+        226
+      ]
+    },
+    {
+      "id": "estado_filtro",
+      "descripcion": "el desplegable Estado del filtro de facturas",
+      "box": [
+        186,
+        122,
+        333,
+        140
+      ]
+    },
+    {
+      "id": "cliente_filtro",
+      "descripcion": "el campo Cliente del filtro de facturas",
+      "box": [
+        24,
+        122,
+        171,
+        140
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "menu_abierto",
+      "pregunta": "¿Hay un menú desplegado en la pantalla?",
+      "opciones": [
+        "sí",
+        "no"
+      ],
+      "respuesta": "sí"
+    },
+    {
+      "id": "opcion_resaltada",
+      "pregunta": "¿Qué opción del menú Comercial está resaltada?",
+      "opciones": [
+        "Maestros",
+        "Ventas",
+        "ninguna"
+      ],
+      "respuesta": "Ventas"
+    }
+  ]
+}

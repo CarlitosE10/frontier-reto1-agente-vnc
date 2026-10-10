@@ -1,0 +1,158 @@
+{
+  "captura": "tests/fixtures/sigecom/facturas-lista.png",
+  "pantalla": "Cartera › Facturas, sin filtros (página 1)",
+  "objetivos": [
+    {
+      "id": "cliente_filtro",
+      "descripcion": "el campo Cliente del filtro",
+      "box": [
+        24,
+        122,
+        171,
+        140
+      ]
+    },
+    {
+      "id": "estado_filtro",
+      "descripcion": "el desplegable Estado del filtro",
+      "box": [
+        186,
+        122,
+        333,
+        140
+      ]
+    },
+    {
+      "id": "buscar",
+      "descripcion": "el botón Buscar",
+      "box": [
+        347,
+        119,
+        416,
+        140
+      ]
+    },
+    {
+      "id": "limpiar",
+      "descripcion": "el botón Limpiar",
+      "box": [
+        430,
+        120,
+        502,
+        140
+      ]
+    },
+    {
+      "id": "exportar",
+      "descripcion": "el botón Exportar",
+      "box": [
+        15,
+        156,
+        94,
+        176
+      ]
+    },
+    {
+      "id": "enlace_fv10107",
+      "descripcion": "el enlace de la factura FV-10107",
+      "box": [
+        19,
+        281,
+        84,
+        295
+      ]
+    },
+    {
+      "id": "enlace_lopez",
+      "descripcion": "el código de la factura anulada de Panadería López Express",
+      "box": [
+        19,
+        465,
+        84,
+        479
+      ]
+    },
+    {
+      "id": "valor_fv10080",
+      "descripcion": "la celda Valor de la factura FV-10080",
+      "box": [
+        950,
+        391,
+        1107,
+        412
+      ]
+    },
+    {
+      "id": "vence_ruiz_450",
+      "descripcion": "la fecha de vencimiento de la factura de Ferretería Ruiz por 450.000",
+      "box": [
+        774,
+        230,
+        948,
+        251
+      ]
+    },
+    {
+      "id": "encabezado_estado",
+      "descripcion": "el encabezado de la columna Estado",
+      "box": [
+        1109,
+        185,
+        1263,
+        205
+      ]
+    },
+    {
+      "id": "siguiente",
+      "descripcion": "el botón Siguiente de la paginación",
+      "box": [
+        165,
+        674,
+        250,
+        694
+      ]
+    },
+    {
+      "id": "menu_herramientas",
+      "descripcion": "el menú Herramientas de la barra de menús",
+      "box": [
+        241,
+        35,
+        352,
+        61
+      ]
+    },
+    {
+      "id": "rotulo_facturas",
+      "descripcion": "el rótulo «Facturas» a la derecha, encima de la tabla",
+      "box": [
+        1213,
+        160,
+        1266,
+        172
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "estado_fv10049",
+      "pregunta": "¿Qué estado tiene la factura FV-10049?",
+      "opciones": [
+        "Vencida",
+        "Pendiente",
+        "Pagada",
+        "Anulada"
+      ],
+      "respuesta": "Anulada"
+    },
+    {
+      "id": "anterior_habilitado",
+      "pregunta": "¿El botón Anterior de la paginación está habilitado?",
+      "opciones": [
+        "sí",
+        "no"
+      ],
+      "respuesta": "no"
+    }
+  ]
+}
