@@ -1,0 +1,149 @@
+{
+  "captura": "tests/fixtures/sigecom/pedidos-estado-desplegado.png",
+  "pantalla": "Pedidos, con la lista del filtro Estado desplegada",
+  "objetivos": [
+    {
+      "id": "opcion_entregado",
+      "descripcion": "la opción Entregado de la lista desplegada",
+      "box": [
+        186,
+        215,
+        334,
+        238
+      ]
+    },
+    {
+      "id": "opcion_anulado",
+      "descripcion": "la opción Anulado de la lista desplegada",
+      "box": [
+        186,
+        239,
+        334,
+        262
+      ]
+    },
+    {
+      "id": "opcion_borrador",
+      "descripcion": "la opción Borrador de la lista desplegada",
+      "box": [
+        186,
+        167,
+        334,
+        190
+      ]
+    },
+    {
+      "id": "opcion_confirmado",
+      "descripcion": "la opción Confirmado de la lista desplegada",
+      "box": [
+        186,
+        191,
+        334,
+        214
+      ]
+    },
+    {
+      "id": "fecha_desde",
+      "descripcion": "el campo Fecha desde",
+      "box": [
+        348,
+        122,
+        495,
+        140
+      ]
+    },
+    {
+      "id": "fecha_hasta",
+      "descripcion": "el campo Fecha hasta",
+      "box": [
+        510,
+        122,
+        657,
+        140
+      ]
+    },
+    {
+      "id": "buscar",
+      "descripcion": "el botón Buscar",
+      "box": [
+        671,
+        119,
+        740,
+        140
+      ]
+    },
+    {
+      "id": "limpiar",
+      "descripcion": "el botón Limpiar",
+      "box": [
+        754,
+        120,
+        826,
+        140
+      ]
+    },
+    {
+      "id": "nuevo_pedido",
+      "descripcion": "el botón Nuevo pedido",
+      "box": [
+        15,
+        156,
+        128,
+        176
+      ]
+    },
+    {
+      "id": "enlace_pd0186",
+      "descripcion": "el enlace del pedido PD-0186",
+      "box": [
+        19,
+        235,
+        78,
+        249
+      ]
+    },
+    {
+      "id": "enlace_faro",
+      "descripcion": "el código del pedido de Distribuciones El Faro",
+      "box": [
+        19,
+        511,
+        78,
+        525
+      ]
+    },
+    {
+      "id": "estado_pd0233",
+      "descripcion": "la celda Estado del pedido PD-0233",
+      "box": [
+        893,
+        345,
+        1087,
+        366
+      ]
+    }
+  ],
+  "estados": [
+    {
+      "id": "opcion_resaltada",
+      "pregunta": "¿Qué opción está resaltada en la lista desplegada?",
+      "opciones": [
+        "Todos",
+        "Borrador",
+        "Confirmado",
+        "Entregado",
+        "Anulado"
+      ],
+      "respuesta": "Todos"
+    },
+    {
+      "id": "fecha_desde_vacia",
+      "pregunta": "¿El campo Fecha desde tiene una fecha escrita o está vacío (muestra dd/mm/aaaa)?",
+      "opciones": [
+        "fecha escrita",
+        "vacío"
+      ],
+      "respuesta": "vacío"
+    }
+  ]
+}

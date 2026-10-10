@@ -6,8 +6,8 @@ Este plan lleva a código el diseño de [diseno-sistema.md](diseno-sistema.md). 
 
 Estas decisiones reemplazan lo que diga el diseño en los mismos puntos.
 
-- **Un solo modelo (VLM), configurable.** `VLM_MODEL=anthropic/claude-haiku-5.5` por defecto, vía OpenRouter. Alternativa a evaluar: `qwen/qwen3.7-plus`. El cambio de modelo es solo una variable de entorno.
-- **Coordenadas.** `VLM_COORD_MODE=pixels` (Claude, GPT) o `norm1000` (Qwen, Gemini). El código convierte siempre a píxeles reales de la pantalla.
+- **Un solo modelo (VLM), configurable.** Elegido en T13: **`VLM_MODEL=anthropic/claude-haiku-5.5` con `VLM_COORD_MODE=pixels`**, vía OpenRouter ([reporte](../eval/grounding/reporte.md)). Sobre 10 capturas de SIGECOM acertó 121 de 121 clics, con 100 % de tool calls válidas, 2.5 s de latencia p50 y US$0.00034 por llamada. `qwen/qwen3.7-plus` (`norm1000`) acertó 55 %, con 14 % de tool calls inválidas, el doble de latencia y casi el doble de costo: queda descartado. El cambio de modelo es solo una variable de entorno.
+- **Coordenadas.** `VLM_COORD_MODE=pixels` (Claude, GPT) o `norm1000` (Qwen, Gemini). El código convierte siempre a píxeles reales de la pantalla. T13 confirmó que Qwen3.7 Plus responde en 0–1000 aunque el prompt pida píxeles: si se usa, va con `norm1000`.
 - **Sin Jev por ahora.** Las acciones irreversibles y el éxito final los verifica el mismo VLM en una llamada aparte, con contexto limpio (diseño D6 y D7). La interfaz `Gate` queda lista para sumar Jev después sin tocar el resto.
 - **Tope de gasto por tarea** (`TASK_MAX_COST_USD`), sumando `usage.cost` de cada llamada.
 - **Fuera de este plan** hasta que las métricas lo pidan: modo cuadrícula, localizador separado (planificador + grounder), escalamiento a otro modelo, conteo paginado con OCR y Jev (tarea T18).
