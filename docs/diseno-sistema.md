@@ -65,6 +65,7 @@ Tipos de tarea que muestran las pruebas de práctica:
 | S6 | La exportación se evalúa por el estado de la app, no por el archivo descargado | Si aparece un diálogo de descarga, el agente lo acepta como parte de la exportación |
 | S7 | El evaluador lee números sin separador de miles | Las respuestas numéricas se normalizan a `1234567.5` |
 | S8 | Si la tarea pide crear un registro que ya existe (mismo NIT o documento), lo correcto es no duplicarlo | El agente reporta `fallida` nombrando el registro existente |
+| S9 | La corrida del set oculto se paga con la reserva de US$5, que no se puede gastar durante el día | Con el costo medido (~US$0.015 por tarea) caben unas 340 tareas. Si el set fuera mucho mayor, el tope por tarea (`TASK_MAX_COST_USD`) evita que una sola tarea se coma la reserva |
 
 ### 1.4 Casos difíciles
 
@@ -333,11 +334,12 @@ Cada decisión indica qué elegimos, qué descartamos y por qué, y qué costo a
 
 **D4 · Modelo y proveedor del System 2**
 - **Elegimos:** un solo modelo vía OpenRouter, configurable por variable de entorno, con **Claude Haiku 5.5** por defecto (US$0.10 / US$0.50 por millón de tokens, ~US$0.015 por tarea). Está entrenado para uso de computadora con coordenadas en píxeles.
-  - La alternativa principal es **Qwen3.7 Plus** (79.0 reportado en ScreenSpot-Pro, ~US$0.045 por tarea).
-  - La elección final sale de una comparación de precisión de clic sobre capturas reales de SIGECOM.
+  - La comparación de precisión de clic sobre 10 capturas reales de SIGECOM lo confirmó ([reporte](../eval/grounding/reporte.md)): Haiku acertó 121 de 121 clics, con 2.5 s de latencia p50 y US$0.00034 por llamada.
   - Cambiar de modelo es una línea, lo que ayuda ante el incidente.
+  - **Presupuesto:** US$50 en total. US$45 se pueden gastar en pruebas durante el día, y US$5 quedan reservados y bloqueados para la corrida del set oculto. La restricción que manda es el costo por tarea en esa corrida: con ~US$0.015 por tarea caben unas 340 tareas en la reserva.
 - **Descartamos:**
-  - Claude Sonnet 5.5 en cada paso: ~US$0.30 por tarea, y el presupuesto de US$5 debe cubrir pruebas y evaluación. Queda como referencia de techo.
+  - Claude Sonnet 5.5 en cada paso: ~US$0.30 por tarea. Con los US$5 de la reserva solo cabrían unas 16 tareas del set oculto. Queda como referencia de techo y como candidato a verificador (D6).
+  - Qwen3.7 Plus (79.0 reportado en ScreenSpot-Pro): en la comparación acertó 67 de 121 clics, con el doble de latencia y casi el doble de costo por llamada.
   - GPT-4o-mini: es más caro que Haiku 5.5 y débil ubicando elementos por píxel.
   - Claude 3.5 Sonnet: está retirado y no se puede usar.
   - Modelos especializados en interfaz gráfica (Holo2, UI-Venus, MAI-UI): no están en OpenRouter y habría que alojarlos en una GPU propia.
@@ -356,6 +358,7 @@ Cada decisión indica qué elegimos, qué descartamos y por qué, y qué costo a
   - Jev dentro del ciclo de clics: solo acepta texto, y sus respuestas no pueden ser coordenadas.
   - No verificar: un cambio de más cuenta como acción destructiva, y sin API no hay forma de deshacerlo.
 - **Aceptamos:** la verificación comparte los sesgos del modelo que propuso la acción. Lo mitigamos con contexto limpio, un prompt que busca razones para no actuar y el OCR como fuente independiente. Cuesta una llamada extra por acción irreversible (1–3 por tarea).
+- **En medición:** un verificador más fuerte (`VERIFY_MODEL`, por ejemplo Claude Sonnet 5.5) solo para esas 1–3 llamadas por tarea, mientras Haiku sigue haciendo los pasos. Las fallas de la corrida de T16 vinieron de la verificación (bloqueó un E1 correcto y rechazó un conteo correcto en E3), no de los clics. Se adopta si mejora el éxito y el costo por tarea queda por debajo de US$0.05, que deja lugar para unas 100 tareas en la reserva.
 
 **D7 · Verificación aparte o en la misma respuesta**
 - **Elegimos:** una llamada aparte, con contexto limpio, solo para acciones irreversibles y para el cierre.
@@ -510,7 +513,7 @@ Las 5 pruebas oficiales (E1–E5), más casos propios en el mismo formato JSON. 
 | Bloqueos falsos de la verificación | Acciones correctas bloqueadas | ≤ 5 % |
 | Latencia de la verificación | Traza | p95 < 5 s |
 | Estabilidad | Pruebas con el mismo resultado en 3 corridas | ≥ 90 % |
-| Costo por tarea | Suma de `usage.cost` de OpenRouter | ≤ US$0.05 (tope duro: US$0.15) |
+| Costo por tarea | Suma de `usage.cost` de OpenRouter | ≤ US$0.05, para que quepan unas 100 tareas del set oculto en la reserva de US$5 (tope duro: US$0.15) |
 | Tiempo de detección de un incidente | Canario y códigos de error | < 15 min |
 
 ### 3.4 Decisiones que toman las métricas
