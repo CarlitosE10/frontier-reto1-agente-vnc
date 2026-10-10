@@ -48,8 +48,13 @@ tests/
 Dockerfile
 pyproject.toml
 .env.example
-README.md
+.gitignore
+README.md               # cómo correr el proyecto
+docs/                   # diseño, plan, diagramas y exportaciones
+frontier-reto-1/        # enunciado (README_Reto.md), rúbrica y pruebas oficiales; no se modifica
 ```
+
+La raíz del repositorio es la raíz del proyecto: todos los comandos se corren desde ahí, y el `.env` vive ahí (está en `.gitignore`).
 
 ## 2. Contratos compartidos
 
@@ -305,7 +310,7 @@ Con estos dobles, cada módulo se prueba sin escritorio ni modelos reales.
   5. Chequeos locales: estado esperado, línea `respuesta:`, `claves_razon` y ausencia de secretos.
   6. Reporte CSV y Markdown con resultado, duración, pasos, costo, códigos de error y enlace a la traza.
 
-  El escritorio y los tokens se leen de `EVAL_DESKTOP_URL`, `EVAL_DESKTOP_PASSWORD`, `EVAL_DESKTOP_TOKEN`, `AGENT_URL` y `AGENT_TOKEN`. Se copian E1–E5 de `pruebas/` y se agregan los casos P01–P12 del diseño, completando los † con datos reales de SIGECOM.
+  El escritorio y los tokens se leen de `EVAL_DESKTOP_URL`, `EVAL_DESKTOP_PASSWORD`, `EVAL_DESKTOP_TOKEN`, `AGENT_URL` y `AGENT_TOKEN`. Se copian E1–E5 de `frontier-reto-1/pruebas/` y se agregan los casos P01–P12 del diseño, completando los † con datos reales de SIGECOM.
 - **Listo cuando:** el arnés corre contra un servidor de agente simulado y contra el `/__check` real, y genera el reporte.
 
 ### T13 · Comparación de modelos por precisión de clic

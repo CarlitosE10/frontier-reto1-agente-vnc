@@ -1,0 +1,15 @@
+# Secretos
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Trazas del agente (contienen capturas de la app)
+traces/
+
+# macOS
+.DS_Store
