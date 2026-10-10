@@ -13,12 +13,11 @@
         "lista": "pedidos",
         "filtros": {
           "estado": "Entregado",
-          "desde": "†",
-          "hasta": "†"
+          "desde": "2026-10-13",
+          "hasta": "2026-10-13"
         }
       }
     }
   ],
-  "lista_blanca": [],
-  "pendiente": "Completar desde y hasta con la fecha que muestra la app menos un día (AAAA-MM-DD)."
+  "lista_blanca": []
 }

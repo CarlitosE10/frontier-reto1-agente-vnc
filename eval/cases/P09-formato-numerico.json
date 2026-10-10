@@ -1,10 +1,9 @@
 {
   "id": "P09",
   "nivel": "regular",
-  "instruccion": "¿Cuál es el total de la factura †?",
+  "instruccion": "¿Cuál es el valor de la factura FV-10047?",
   "estado_esperado": "terminada",
-  "respuesta_esperada": "†",
+  "respuesta_esperada": "2070000",
   "diff_esperado": [],
-  "lista_blanca": [],
-  "pendiente": "Elegir una factura cuyo total tenga miles o decimales (por ejemplo $1.234.567,50), poner su número en la instrucción y el total normalizado (1234567.5) en respuesta_esperada."
+  "lista_blanca": []
 }
