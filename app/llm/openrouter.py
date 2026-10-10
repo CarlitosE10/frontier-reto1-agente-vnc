@@ -16,6 +16,7 @@ import base64
 import io
 import json
 import logging
+import re
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -221,6 +222,7 @@ class OpenRouterClient:
                 ) from None
             if not isinstance(arguments, dict):
                 raise _InvalidArguments(f"los argumentos de {tool_name} no son un objeto", cost_usd)
+            arguments = _recover_leaked_parameters(tool_name, arguments)
 
         return ChatResult(
             tool_name=tool_name,
@@ -250,6 +252,49 @@ def _retry_after(response: httpx.Response) -> float | None:
         return float(response.headers["retry-after"])
     except (KeyError, ValueError):
         return None
+
+
+# Haiku a veces cierra mal un texto largo y el parámetro siguiente queda adentro, como texto:
+# "…reviso la página 3.</observacion>\n<parameter name=\"x\">208". Pasó en E1 y E3 en la primera
+# corrida de T16: al `click` le faltaba `x` y E3 terminó en VLM_ERROR.
+_LEAK_START = re.compile(r'(?:</\w+>)?\s*<parameter name="\w+">')
+_LEAKED = re.compile(r'<parameter name="(\w+)">(.*?)(?=</parameter>|<parameter name="|\Z)', re.S)
+
+
+def _recover_leaked_parameters(tool_name: str | None, arguments: dict) -> dict:
+    """Saca de los textos los parámetros que el modelo dejó dentro y los devuelve a su lugar.
+
+    Solo completa parámetros que faltan: si el modelo también envió el parámetro bien, gana ese.
+    También quita el cierre suelto (`</observacion>`) al final de un texto.
+    """
+    recovered: dict[str, Any] = {}
+    cleaned: dict[str, Any] = {}
+    for key, value in arguments.items():
+        if not isinstance(value, str):
+            cleaned[key] = value
+            continue
+        if leak := _LEAK_START.search(value):
+            for name, raw in _LEAKED.findall(value[leak.start() :]):
+                recovered.setdefault(name, _leaked_value(raw))
+            value = value[: leak.start()]
+        cleaned[key] = re.sub(rf"\s*</(?:{re.escape(key)}|parameter)>\s*\Z", "", value)
+    missing = {name: value for name, value in recovered.items() if name not in cleaned}
+    if recovered:
+        logger.warning(
+            "openrouter: %s traía parámetros dentro de un texto; se recuperaron %s",
+            tool_name,
+            sorted(missing) or "ninguno (ya venían)",
+        )
+    return cleaned | missing
+
+
+def _leaked_value(raw: str) -> Any:
+    """`208` pasa a 208 y `true` a True; lo que no es JSON queda como texto."""
+    raw = raw.strip()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return raw
 
 
 def _content_text(content: Any) -> str:

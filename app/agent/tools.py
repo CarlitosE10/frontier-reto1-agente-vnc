@@ -45,6 +45,12 @@ _EFECTO = {
 
 
 def _tool(name: str, description: str, properties: dict, required: list[str]) -> dict:
+    """`properties` va con los campos estructurados primero y el texto libre al final.
+
+    `observacion` queda de última: el modelo llena los parámetros en el orden del esquema, y a
+    veces cierra mal un texto largo y se traga el parámetro que sigue (en la primera corrida de
+    T16, `x` quedó dentro de la observación). Con el texto al final, no hay nada que tragarse.
+    """
     return {
         "type": "function",
         "function": {
@@ -53,12 +59,12 @@ def _tool(name: str, description: str, properties: dict, required: list[str]) ->
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "observacion": _OBSERVACION,
                     **properties,
                     "fecha_app": _FECHA_APP,
                     "es_listado": _ES_LISTADO,
+                    "observacion": _OBSERVACION,
                 },
-                "required": ["observacion", *required],
+                "required": [*required, "observacion"],
             },
         },
     }
@@ -125,7 +131,6 @@ TOOLS: list[dict] = [
         "finish_task",
         "Cierra la tarea como cumplida. Pasa por una verificación antes de aceptarse.",
         {
-            "resumen": {"type": "string", "description": "Qué se hizo, en una o dos frases."},
             "respuesta": {
                 "type": "array",
                 "items": {"type": "string"},
@@ -134,6 +139,7 @@ TOOLS: list[dict] = [
                     "de la pregunta. Omítela si la tarea no pregunta nada."
                 ),
             },
+            "resumen": {"type": "string", "description": "Qué se hizo, en una o dos frases."},
             "evidencia": {
                 "type": "string",
                 "description": "El texto visible en la pantalla que respalda el resultado.",
@@ -145,7 +151,6 @@ TOOLS: list[dict] = [
         "fail_task",
         "Cierra la tarea como fallida, sin hacer cambios.",
         {
-            "razon": {"type": "string", "description": "Por qué no se puede cumplir la tarea."},
             "datos_clave": {
                 "type": "array",
                 "items": {"type": "string"},
@@ -166,8 +171,9 @@ TOOLS: list[dict] = [
                 },
                 "description": "Registros que coinciden con la tarea cuando no se sabe cuál es.",
             },
+            "razon": {"type": "string", "description": "Por qué no se puede cumplir la tarea."},
         },
-        ["razon", "datos_clave"],
+        ["datos_clave", "razon"],
     ),
 ]
 

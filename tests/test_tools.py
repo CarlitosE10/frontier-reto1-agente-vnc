@@ -64,6 +64,16 @@ def test_every_tool_has_observacion_fecha_app_and_es_listado():
         assert "fecha_app" not in parameters["required"]
 
 
+def test_free_text_goes_after_the_structured_fields():
+    """Si el modelo cierra mal un texto largo, se traga el parámetro siguiente: que no haya uno."""
+    for entry in TOOLS:
+        assert list(entry["function"]["parameters"]["properties"])[-1] == "observacion"
+    finish = list(tool("finish_task")["parameters"]["properties"])
+    assert finish.index("respuesta") < finish.index("resumen")
+    fail = list(tool("fail_task")["parameters"]["properties"])
+    assert fail.index("datos_clave") < fail.index("candidatos") < fail.index("razon")
+
+
 @pytest.mark.parametrize("name", ["click", "double_click"])
 def test_click_tools_declare_the_effect(name):
     parameters = tool(name)["parameters"]

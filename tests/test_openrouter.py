@@ -262,6 +262,59 @@ async def test_invalid_tool_arguments_twice_return_no_tool(settings, arguments, 
     assert len(server.requests) == 2
 
 
+@pytest.mark.parametrize(
+    ("arguments", "expected"),
+    [
+        pytest.param(
+            # Tal como llegó en E3: la observación se tragó la `x`.
+            {
+                "observacion": 'Página 2; sigo.</observacion>\n<parameter name="x">208',
+                "y": 684,
+                "objetivo": "Siguiente",
+            },
+            {
+                "observacion": "Página 2; sigo.",
+                "y": 684,
+                "objetivo": "Siguiente",
+                "x": 208,
+            },
+            id="E3",
+        ),
+        pytest.param(
+            {
+                "resumen": 'Hay 45.</resumen>\n<parameter name="respuesta">["45"]</parameter>\n'
+                '<parameter name="es_listado">true',
+                "evidencia": "Página 3",
+            },
+            {
+                "resumen": "Hay 45.",
+                "evidencia": "Página 3",
+                "respuesta": ["45"],
+                "es_listado": True,
+            },
+            id="varios-y-json",
+        ),
+        pytest.param(
+            {"observacion": 'veo</observacion>\n<parameter name="x">9', "x": 208, "y": 684},
+            {"observacion": "veo", "x": 208, "y": 684},
+            id="no-pisa-lo-que-ya-vino",
+        ),
+        pytest.param(
+            {"x": 208, "y": 684, "observacion": "Página 2.</observacion>"},
+            {"x": 208, "y": 684, "observacion": "Página 2."},
+            id="cierre-suelto",
+        ),
+    ],
+)
+async def test_parameters_leaked_inside_a_text_are_recovered(settings, arguments, expected):
+    server = Server(httpx.Response(200, json=completion([call("click", arguments)])))
+
+    result = await client_for(settings, server).chat("m", MESSAGES, [CLICK_TOOL])
+
+    assert result.arguments == expected
+    assert len(server.requests) == 1  # se arregla sin volver a preguntar
+
+
 async def test_transient_errors_are_retried_inside_each_attempt(settings, sleeps):
     server = Server(
         httpx.Response(200, json=completion([call("click", "{")])),
