@@ -189,8 +189,10 @@ Con estos dobles, cada módulo se prueba sin escritorio ni modelos reales.
 ## 3. Tareas
 
 ### T01 · Esqueleto y contratos
-- **Hacer:** la estructura de la sección 1, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, vncdotool, websockets, httpx, pillow, numpy, pytesseract, pytest, pytest-asyncio, ruff), `config.py` y `models.py` completos, las interfaces de la sección 2.3 como stubs que lanzan `NotImplementedError`, `tests/fakes.py` y `.env.example`.
-- **Listo cuando:** `pytest` corre en verde, `ruff check` no reporta errores y todos los módulos se importan.
+- **Hacer:** la estructura de la sección 1, `pyproject.toml` (fastapi, uvicorn, pydantic, pydantic-settings, vncdotool, websockets, httpx, pillow, numpy, pytesseract, pytest, pytest-asyncio, ruff), `config.py` y `models.py` completos, las interfaces de la sección 2.3 como stubs que lanzan `NotImplementedError` y `tests/fakes.py`.
+  - El proyecto usa **uv con Python 3.12** (`requires-python = ">=3.12"`, `uv.lock` versionado). Todos los comandos se corren con `uv run`.
+  - `.env.example` ya existe: `config.py` lee exactamente esas variables.
+- **Listo cuando:** `uv run pytest` corre en verde, `uv run ruff check` no reporta errores y todos los módulos se importan.
 
 ### T02 · Sonda y puente VNC
 - **Hacer:**
