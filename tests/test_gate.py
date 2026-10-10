@@ -5,6 +5,7 @@ import io
 
 import pytest
 from PIL import Image
+from vncdotool.keys import Key
 
 from app.agent.gate import (
     MAX_EVIDENCE_CHARS,
@@ -28,6 +29,7 @@ from app.models import (
     TypeText,
     Wait,
 )
+from app.vnc import client
 from tests.fakes import FakeLLM, tool_call
 from tests.screens import (
     E5_FORM_OCR,
@@ -96,6 +98,9 @@ def sent_image(call: dict) -> Image.Image:
         (PressKey(observacion="", combinacion="enter"), [], True, True),
         (PressKey(observacion="", combinacion="Return"), [], True, True),
         (PressKey(observacion="", combinacion="ctrl+Enter"), [], True, True),
+        (PressKey(observacion="", combinacion="intro"), [], True, True),
+        (PressKey(observacion="", combinacion="Intro"), [], False, False),
+        (PressKey(observacion="", combinacion="tecla rara"), [], True, False),
         (PressKey(observacion="", combinacion="enter"), [], False, False),
         (PressKey(observacion="", combinacion="enter"), ["Aceptar"], False, True),
         (PressKey(observacion="", combinacion="tab"), ["Guardar"], True, False),
@@ -109,6 +114,19 @@ def sent_image(call: dict) -> Image.Image:
 )
 def test_is_irreversible(action, words, in_form, expected):
     assert is_irreversible(action, words, in_form, KEYWORDS) is expected
+
+
+def test_intro_inside_a_form_is_irreversible():
+    assert is_irreversible(PressKey(observacion="", combinacion="intro"), [], True, KEYWORDS)
+
+
+def test_every_name_the_desktop_sends_as_return_counts_as_enter():
+    """La lista de Enter sale de la tabla de teclas del escritorio: no puede divergir."""
+    names = [name for name, keysym in client._KEY_NAMES.items() if keysym == Key.Return]
+    assert {"enter", "return", "intro"} <= set(names)
+    for name in names:
+        press = PressKey(observacion="", combinacion=name)
+        assert is_irreversible(press, [], True, KEYWORDS), name
 
 
 def test_keywords_come_from_the_parameter():

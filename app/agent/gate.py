@@ -11,6 +11,7 @@ import re
 import unicodedata
 
 from PIL import Image, ImageDraw
+from vncdotool.keys import Key
 
 from app.agent.prompts import VERIFY_ACTION_PROMPT, VERIFY_COMPLETION_PROMPT
 from app.config import Settings
@@ -26,6 +27,7 @@ from app.models import (
     TypeText,
     Wait,
 )
+from app.vnc.client import combo_keysyms
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +38,6 @@ MAX_EVIDENCE_CHARS = 16000  # si no cabe todo, se descartan las pantallas más v
 MARK_RADIUS = 16
 
 _IRREVERSIBLE_EFFECTS = {Effect.GUARDAR, Effect.EXPORTAR, Effect.ELIMINAR}
-_ENTER_KEYS = {"enter", "return", "kp_enter"}
 
 # --- Herramienta `verificar` ---------------------------------------------------------------
 
@@ -108,11 +109,22 @@ def is_irreversible(
     if isinstance(action, Click):
         return action.efecto in _IRREVERSIBLE_EFFECTS or _has_keyword(words_near_point, keywords)
     if isinstance(action, PressKey):
-        key = action.combinacion.strip().lower().split("+")[-1].strip()
-        return key in _ENTER_KEYS and (in_form or _has_keyword(words_near_point, keywords))
+        return _is_enter(action.combinacion) and (
+            in_form or _has_keyword(words_near_point, keywords)
+        )
     if isinstance(action, TypeText):
         return in_form and ("\n" in action.texto or "\r" in action.texto)
     return False
+
+
+def _is_enter(combo: str) -> bool:
+    """La combinación termina en Return, leída con la misma tabla de teclas que usa el escritorio
+    (`enter`, `return`, `intro`, `ctrl+enter`...): así las dos listas no pueden divergir."""
+    try:
+        keysyms = combo_keysyms(combo)
+    except ValueError:
+        return False  # el escritorio tampoco la puede enviar: no llega a ejecutarse
+    return keysyms[-1] == Key.Return
 
 
 def _fold(text: str) -> str:

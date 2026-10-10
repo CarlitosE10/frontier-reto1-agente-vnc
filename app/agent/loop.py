@@ -9,9 +9,7 @@ vuelo.
 """
 
 import asyncio
-import base64
 import contextlib
-import io
 import logging
 from collections import deque
 from collections.abc import AsyncIterator, Awaitable, Callable
@@ -24,7 +22,7 @@ from app.agent.prompts import system_prompt
 from app.agent.summary import build_summary, sanitize
 from app.agent.tools import TOOLS, ActionError, parse_action
 from app.config import Settings
-from app.llm.openrouter import ChatResult, LLMError, OpenRouterClient
+from app.llm.openrouter import ChatResult, LLMError, OpenRouterClient, image_part
 from app.models import (
     Action,
     AgentResult,
@@ -51,7 +49,6 @@ LOOP_REPEATS = 3  # la misma acción sobre la misma pantalla, a la tercera vez: 
 LOOP_WINDOW = 20  # intentos recientes que se comparan para detectar ciclos
 NO_EFFECT_WARNING = 2  # acciones seguidas sin efecto antes de avisarle al VLM
 MAX_INVALID_REPLIES = 3  # respuestas inválidas seguidas antes de terminar con VLM_ERROR
-CONNECT_ATTEMPTS = 2  # solo se reintenta VNC_CONNECT_FAILED, nunca una contraseña rechazada
 EVIDENCE_PINNED = 10  # listados marcados por el VLM que se conservan como evidencia
 EVIDENCE_MAX_CHARS = 20_000  # tope del texto de evidencia que recibe la verificación
 TEXT_CHARS = 200  # largo máximo de observaciones y textos en el historial y el progreso
@@ -111,7 +108,8 @@ class _Run:
         self.history: deque[str] = deque(maxlen=settings.history_steps)
         self.attempts: deque[tuple[dict, Image.Image]] = deque(maxlen=LOOP_WINDOW)
         self.steps = 0
-        self.cost = 0.0
+        self.vlm_cost = 0.0
+        self.gate_cost_start = gate.cost_usd  # Gate acumula lo que gastan sus verificaciones
         self.invalid_replies = 0
         self.no_effect = 0
         self.in_form = False  # hubo escritura desde el último clic: Enter puede guardar
@@ -123,6 +121,11 @@ class _Run:
         self.started = self.clock()
         self.deadline = self.started + settings.task_time_budget_s
 
+    @property
+    def cost(self) -> float:
+        """Gasto de la tarea: las decisiones del VLM más las verificaciones."""
+        return self.vlm_cost + self.gate.cost_usd - self.gate_cost_start
+
     # --- Ciclo ---
 
     async def execute(self, desktop_factory: Callable[[], DesktopSession]) -> AgentResult:
@@ -130,8 +133,9 @@ class _Run:
         error_code: ErrorCode | None = None
         self._progress("Conectando al escritorio")
         try:
-            async with contextlib.AsyncExitStack() as stack:
-                desktop = await self._connect(stack, desktop_factory)
+            self._check_cancel()
+            # DesktopSession ya reintenta la conexión: aquí no se reintenta otra vez.
+            async with desktop_factory() as desktop:
                 final = await self._work(desktop)
             # Fuera del bloque ya se desconectó: de aquí en adelante no se opera el escritorio.
         except (_Stop, DesktopError, LLMError) as error:
@@ -147,16 +151,6 @@ class _Run:
 
         status = TaskStatus.TERMINADA if isinstance(final, FinishTask) else TaskStatus.FALLIDA
         summary = sanitize(build_summary(final, error_code), self.secrets)
-        self._trace_step(
-            {
-                "evento": "fin",
-                "estado": status.value,
-                "error_code": error_code.value if error_code else None,
-                "resumen": summary,
-                "pasos": self.steps,
-                "costo_total_usd": round(self.cost, 6),
-            }
-        )
         return AgentResult(
             status=status,
             summary=summary,
@@ -164,20 +158,6 @@ class _Run:
             cost_usd=self.cost,
             steps=self.steps,
         )
-
-    async def _connect(
-        self, stack: contextlib.AsyncExitStack, desktop_factory: Callable[[], DesktopSession]
-    ) -> DesktopSession:
-        attempt = 1
-        while True:
-            self._check_cancel()
-            try:
-                return await stack.enter_async_context(desktop_factory())
-            except DesktopError as error:
-                if error.code is not ErrorCode.VNC_CONNECT_FAILED or attempt >= CONNECT_ATTEMPTS:
-                    raise
-                logger.warning("Conexión VNC fallida (intento %d); se reintenta", attempt)
-            attempt += 1
 
     async def _work(self, desktop: DesktopSession) -> FinishTask | FailTask:
         self.size = desktop.size
@@ -254,14 +234,14 @@ class _Run:
     # --- Decidir ---
 
     async def _decide(self, screen: Image.Image, log: dict) -> ChatResult:
-        image = await asyncio.to_thread(_image_part, screen)
+        image = await asyncio.to_thread(image_part, screen)
         messages = [
             {"role": "system", "content": self.system},
             {"role": "user", "content": [{"type": "text", "text": self._step_prompt()}, image]},
         ]
         async with self._budget():
             chat = await self.llm.chat(self.settings.vlm_model, messages, TOOLS)
-        self.cost += chat.cost_usd
+        self.vlm_cost += chat.cost_usd
         self.record.cost_usd = self.cost
         log.update(
             herramienta=chat.tool_name,
@@ -300,7 +280,10 @@ class _Run:
 
     def _parse(self, chat: ChatResult) -> Action:
         if chat.tool_name is None:
-            raise ActionError("respondiste sin elegir una herramienta; elige exactamente una")
+            detail = f" ({_shorten(chat.text)})" if chat.text.strip() else ""
+            raise ActionError(
+                f"respondiste sin una herramienta válida{detail}; elige exactamente una"
+            )
         return parse_action(chat.tool_name, chat.arguments, self.size, self.settings.vlm_coord_mode)
 
     def _take_note(self, chat: ChatResult, action: Action) -> None:
@@ -390,6 +373,7 @@ class _Run:
         self, check: Callable[[], Awaitable[GateDecision]], log: dict
     ) -> GateDecision:
         started = self.clock()
+        spent_before = self.gate.cost_usd
         try:
             async with self._budget():
                 decision = await check()
@@ -401,10 +385,16 @@ class _Run:
             decision = GateDecision(
                 outcome="block", reason=f"la verificación falló ({type(error).__name__})"
             )
-        log.update(
-            verificacion=decision.model_dump(mode="json"),
-            latencia_verificacion_s=round(self.clock() - started, 3),
-        )
+        finally:
+            spent = self.gate.cost_usd - spent_before
+            self.record.cost_usd = self.cost
+            log.update(
+                costo_usd=log.get("costo_usd", 0.0) + spent,  # el arnés suma costo_usd por paso
+                costo_verificacion_usd=spent,
+                costo_total_usd=round(self.cost, 6),
+                latencia_verificacion_s=round(self.clock() - started, 3),
+            )
+        log["verificacion"] = decision.model_dump(mode="json")
         return decision
 
     # --- Actuar y verificar ---
@@ -418,7 +408,11 @@ class _Run:
             await self._wait(action.segundos)
             after = await desktop.screenshot()
         else:
-            await _act(desktop, action)
+            try:
+                await _act(desktop, action)
+            except ValueError as error:
+                # DesktopSession valida antes de enviar: al escritorio no llegó nada.
+                return screen, f"acción inválida, no se ejecutó: {error}"
             after, stable = await self._settle(desktop, screen)
         log["latencia_vnc_s"] = round(self.clock() - started, 3)
 
@@ -609,11 +603,3 @@ def _describe(action: Action, arguments: dict) -> str:
 def _shorten(text: str, limit: int = TEXT_CHARS) -> str:
     text = " ".join(text.split())
     return text if len(text) <= limit else text[: limit - 1] + "…"
-
-
-def _image_part(image: Image.Image) -> dict:
-    """La captura como parte `image_url` de un mensaje, en PNG y base64."""
-    buffer = io.BytesIO()
-    image.save(buffer, format="PNG")
-    data = base64.b64encode(buffer.getvalue()).decode("ascii")
-    return {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{data}"}}

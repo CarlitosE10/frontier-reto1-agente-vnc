@@ -230,14 +230,50 @@ async def test_malformed_bodies_are_retried_then_fail(settings, sleeps, body):
 
 
 @pytest.mark.parametrize("arguments", ['{"x": 1, "y":', "[1, 2]"])
-async def test_invalid_tool_arguments(settings, arguments):
-    server = Server(httpx.Response(200, json=completion([call("click", arguments)])))
+async def test_invalid_tool_arguments_are_asked_again(settings, sleeps, arguments):
+    server = Server(
+        httpx.Response(200, json=completion([call("click", arguments)], cost=0.001)),
+        httpx.Response(200, json=completion([call("click", {"x": 1, "y": 2})], cost=0.002)),
+    )
 
-    with pytest.raises(LLMError) as error:
-        await client_for(settings, server).chat("m", MESSAGES, [CLICK_TOOL])
+    result = await client_for(settings, server).chat("m", MESSAGES, [CLICK_TOOL])
 
-    assert error.value.code is ErrorCode.VLM_ERROR
-    assert "click" in str(error.value)
+    assert (result.tool_name, result.arguments) == ("click", {"x": 1, "y": 2})
+    assert result.cost_usd == pytest.approx(0.003)  # la respuesta descartada también se cobró
+    assert len(server.requests) == 2
+    assert sleeps == []
+
+
+@pytest.mark.parametrize(
+    ("arguments", "message"),
+    [('{"x": 1, "y":', "no son JSON válido"), ("[1, 2]", "no son un objeto")],
+)
+async def test_invalid_tool_arguments_twice_return_no_tool(settings, arguments, message):
+    """Sin excepción: el ciclo lo trata como una respuesta inválida y sigue."""
+    bad = httpx.Response(200, json=completion([call("click", arguments)], cost=0.001))
+    server = Server(bad, bad)
+
+    result = await client_for(settings, server).chat("m", MESSAGES, [CLICK_TOOL])
+
+    assert result.tool_name is None
+    assert result.arguments == {}
+    assert result.text == f"los argumentos de click {message}"
+    assert result.cost_usd == pytest.approx(0.002)
+    assert len(server.requests) == 2
+
+
+async def test_transient_errors_are_retried_inside_each_attempt(settings, sleeps):
+    server = Server(
+        httpx.Response(200, json=completion([call("click", "{")])),
+        httpx.Response(503, json={"error": {"message": "ocupado"}}),
+        httpx.Response(200, json=completion([call("click", {"x": 1, "y": 2})])),
+    )
+
+    result = await client_for(settings, server).chat("m", MESSAGES, [CLICK_TOOL])
+
+    assert result.tool_name == "click"
+    assert len(server.requests) == 3
+    assert sleeps == [openrouter.BACKOFF_S]
 
 
 async def test_key_never_reaches_logs_or_errors(settings, sleeps, caplog):
