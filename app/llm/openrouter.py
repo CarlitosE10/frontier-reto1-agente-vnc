@@ -3,7 +3,9 @@
 Cada llamada es un `POST /api/v1/chat/completions` con `tool_choice: auto`, el esfuerzo de
 razonamiento de `Settings` y `provider.require_parameters` para que OpenRouter solo enrute a
 proveedores que aceptan todos los parámetros. Ante 429, 5xx o fallas de red reintenta dos veces
-con backoff; cualquier otra falla termina en `LLMError(VLM_ERROR)`.
+con backoff; cualquier otra falla termina en `LLMError(VLM_ERROR)`. Si los argumentos de la tool
+call no son un objeto JSON, pide la respuesta otra vez una vez y, si vuelve a pasar, devuelve un
+`ChatResult` sin herramienta con el error en `text`: el ciclo lo trata como respuesta inválida.
 
 La llave solo vive en el encabezado `Authorization` de cada petición: no se registra ni aparece
 en los mensajes de error.
@@ -28,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 RETRIES = 2  # reintentos después del primer intento
+ARGUMENT_RETRIES = 1  # reintentos cuando los argumentos de la tool call no son un objeto JSON
 BACKOFF_S = 1.0  # espera antes del reintento n: BACKOFF_S * 2**(n-1)
 MAX_RETRY_AFTER_S = 10.0  # tope para el Retry-After de un 429
 MAX_TOKENS = 4096  # razonamiento + respuesta; una acción ocupa unos cientos de tokens
@@ -69,6 +72,14 @@ class _Retryable(Exception):
         self.retry_after_s = retry_after_s
 
 
+class _InvalidArguments(Exception):
+    """La tool call trae argumentos que no son un objeto JSON. La respuesta ya se cobró."""
+
+    def __init__(self, message: str, cost_usd: float) -> None:
+        super().__init__(message)
+        self.cost_usd = cost_usd
+
+
 class OpenRouterClient:
     def __init__(
         self, settings: Settings, *, transport: httpx.AsyncBaseTransport | None = None
@@ -89,6 +100,29 @@ class OpenRouterClient:
             "max_tokens": MAX_TOKENS,
         }
         start = time.monotonic()
+        spent = 0.0  # lo cobrado por respuestas descartadas
+        for attempt in range(ARGUMENT_RETRIES + 1):
+            try:
+                result = await self._complete(model, body, start)
+            except _InvalidArguments as error:
+                spent += error.cost_usd
+                failure = str(error)
+                logger.warning(
+                    "openrouter: %s; intento %d de %d", error, attempt + 1, ARGUMENT_RETRIES + 1
+                )
+                continue
+            result.cost_usd += spent
+            return result
+        return ChatResult(
+            tool_name=None,
+            arguments={},
+            text=failure,
+            cost_usd=spent,
+            latency_s=time.monotonic() - start,
+        )
+
+    async def _complete(self, model: str, body: dict, start: float) -> ChatResult:
+        """Una respuesta completa, con los reintentos ante fallas transitorias."""
         for attempt in range(RETRIES + 1):
             try:
                 data = await self._post(body)
@@ -101,13 +135,20 @@ class OpenRouterClient:
                     delay = min(max(delay, error.retry_after_s), MAX_RETRY_AFTER_S)
                 logger.warning(
                     "openrouter: %s; reintento %d de %d en %.1f s",
-                    error, attempt + 1, RETRIES, delay,
+                    error,
+                    attempt + 1,
+                    RETRIES,
+                    delay,
                 )
                 await _sleep(delay)
                 continue
             logger.info(
                 "openrouter: modelo=%s herramienta=%s costo=%.6f latencia=%.2f s intentos=%d",
-                model, result.tool_name, result.cost_usd, result.latency_s, attempt + 1,
+                model,
+                result.tool_name,
+                result.cost_usd,
+                result.latency_s,
+                attempt + 1,
             )
             return result
         raise AssertionError("inalcanzable")
@@ -159,6 +200,12 @@ class OpenRouterClient:
         if choice.get("finish_reason") == "error":
             raise _Retryable("el proveedor cortó la respuesta (finish_reason=error)")
 
+        usage = data.get("usage") or {}
+        cost = usage.get("cost")
+        if cost is None:
+            logger.warning("openrouter: la respuesta no trae usage.cost; se cuenta 0")
+        cost_usd = float(cost or 0.0)
+
         text = _content_text(message.get("content"))
         tool_name, arguments = None, {}
         tool_calls = message.get("tool_calls") or []
@@ -169,21 +216,17 @@ class OpenRouterClient:
             try:
                 arguments = json.loads(raw) if isinstance(raw, str) else raw
             except json.JSONDecodeError:
-                raise LLMError(
-                    message=f"argumentos de {tool_name} que no son JSON válido"
+                raise _InvalidArguments(
+                    f"los argumentos de {tool_name} no son JSON válido", cost_usd
                 ) from None
             if not isinstance(arguments, dict):
-                raise LLMError(message=f"argumentos de {tool_name} que no son un objeto")
+                raise _InvalidArguments(f"los argumentos de {tool_name} no son un objeto", cost_usd)
 
-        usage = data.get("usage") or {}
-        cost = usage.get("cost")
-        if cost is None:
-            logger.warning("openrouter: la respuesta no trae usage.cost; se cuenta 0")
         return ChatResult(
             tool_name=tool_name,
             arguments=arguments,
             text=text,
-            cost_usd=float(cost or 0.0),
+            cost_usd=cost_usd,
             latency_s=latency_s,
         )
 

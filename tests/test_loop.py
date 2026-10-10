@@ -61,13 +61,18 @@ def block(reason: str) -> GateDecision:
 
 
 class FakeGate:
-    """Decisiones guionadas; si se acaba el guion, aprueba. Un elemento excepción se lanza."""
+    """Decisiones guionadas; si se acaba el guion, aprueba. Un elemento excepción se lanza.
 
-    def __init__(self, actions=(), completions=()) -> None:
+    Como el `Gate` real, acumula en `cost_usd` lo que cuesta cada verificación.
+    """
+
+    def __init__(self, actions=(), completions=(), cost_per_check=0.0) -> None:
         self.action_script = list(actions)
         self.completion_script = list(completions)
         self.action_calls: list[dict] = []
         self.completion_calls: list[dict] = []
+        self.cost_per_check = cost_per_check
+        self.cost_usd = 0.0
 
     async def check_action(self, task, action, screen, screen_text, evidence):
         self.action_calls.append(
@@ -79,8 +84,8 @@ class FakeGate:
         self.completion_calls.append({"task": task, "result": result, "screen_text": screen_text})
         return self._next(self.completion_script)
 
-    @staticmethod
-    def _next(script):
+    def _next(self, script):
+        self.cost_usd += self.cost_per_check
         item = script.pop(0) if script else APPROVE
         if isinstance(item, Exception):
             raise item
@@ -350,13 +355,12 @@ async def test_happy_path(env, screens):
     assert outcome.record.cost_usd == pytest.approx(0.005)
     assert outcome.record.status is TaskStatus.EN_CURSO  # el estado final lo publica el ejecutor
     steps = outcome.trace.steps
-    assert [s.get("paso") for s in steps] == [1, 2, 3, 4, 5, None]
+    assert [s.get("paso") for s in steps] == [1, 2, 3, 4, 5]
+    assert not any("evento" in step for step in steps)  # el evento "fin" lo escribe el ejecutor
     assert steps[3]["verificacion"]["outcome"] == "approve"
     assert steps[3]["irreversible"] is True
     assert steps[0]["diff_pct"] == 100.0
     assert steps[0]["captura"] == "paso-01.png"
-    assert steps[-1]["evento"] == "fin"
-    assert steps[-1]["estado"] == "terminada"
 
 
 async def test_question_with_answer(env, screens):
@@ -494,7 +498,7 @@ async def test_loop_detected(env, screens):
     assert "Aviso: las últimas 2 acciones no cambiaron la pantalla" in prompt(outcome.llm, 2)
     assert "sin efecto visible" in prompt(outcome.llm, 1)
     codes = [s.get("error_code") for s in outcome.trace.steps]
-    assert codes == ["CLICK_NO_EFFECT", "CLICK_NO_EFFECT", "LOOP_DETECTED", "LOOP_DETECTED"]
+    assert codes == ["CLICK_NO_EFFECT", "CLICK_NO_EFFECT", "LOOP_DETECTED"]
     assert summary_call(env)["error_code"] is ErrorCode.LOOP_DETECTED
 
 
@@ -689,7 +693,23 @@ async def test_invalid_replies_go_back_to_the_vlm(env, screens):
     assert outcome.result.status is TaskStatus.TERMINADA
     assert outcome.desktop.actions == []
     assert "respuesta inválida: x=2000 está fuera de la pantalla" in prompt(outcome.llm, 1)
-    assert "respondiste sin elegir una herramienta" in prompt(outcome.llm, 2)
+    assert "respondiste sin una herramienta válida (hola)" in prompt(outcome.llm, 2)
+
+
+async def test_unparseable_tool_arguments_go_back_to_the_vlm(env, screens):
+    """Lo que devuelve OpenRouterClient cuando los argumentos no son JSON dos veces."""
+    broken = ChatResult(
+        tool_name=None,
+        arguments={},
+        text="los argumentos de click no son JSON válido",
+        cost_usd=0.002,
+        latency_s=0,
+    )
+    outcome = await run(env, screens=screens("white"), script=[broken, finish("Listo", "Clientes")])
+
+    assert outcome.result.status is TaskStatus.TERMINADA
+    assert "(los argumentos de click no son JSON válido)" in prompt(outcome.llm, 1)
+    assert outcome.result.cost_usd == pytest.approx(0.003)
 
 
 async def test_three_invalid_replies_end_with_vlm_error(env, screens):
@@ -718,23 +738,108 @@ async def test_rejected_password_is_not_retried(env, screens):
     assert outcome.llm.calls == []
 
 
-async def test_connection_failure_is_retried_once(env, screens):
+async def test_connection_failure_is_not_retried_by_the_loop(env, screens):
+    """DesktopSession ya reintenta la conexión: el ciclo no suma intentos."""
+    attempts = []
+
     class UnreachableDesktop(FakeDesktop):
         async def __aenter__(self):
             raise DesktopError(ErrorCode.VNC_CONNECT_FAILED)
 
-    good = FakeDesktop(screens("white"))
-    desktops = iter([UnreachableDesktop(screens("white")), good])
-    env.desktop = good
-    outcome = await run(
-        env, desktop=good, factory=lambda: next(desktops), script=[finish("Listo", "Clientes")]
-    )
-    assert outcome.result.status is TaskStatus.TERMINADA
+    def factory():
+        attempts.append(1)
+        return UnreachableDesktop(screens("white"))
 
-    desktops = iter([UnreachableDesktop(screens("white")), UnreachableDesktop(screens("white"))])
-    env.summaries.clear()
-    outcome = await run(env, desktop=good, factory=lambda: next(desktops), script=[])
+    outcome = await run(env, factory=factory, script=[finish("Listo", "Clientes")])
+
     assert outcome.result.error_code is ErrorCode.VNC_CONNECT_FAILED
+    assert len(attempts) == 1
+    assert outcome.llm.calls == []
+
+
+class ValidatingDesktop(FakeDesktop):
+    """Valida como DesktopSession antes de enviar: tecla desconocida o salto de línea."""
+
+    async def press(self, combo):
+        if combo not in ("enter", "tab", "esc"):
+            raise ValueError(f"Tecla desconocida {combo!r} en la combinación {combo!r}")
+        await super().press(combo)
+
+    async def type_text(self, text):
+        if "\n" in text:
+            raise ValueError("type_text no escribe caracteres de control: '\\n'; usa press")
+        await super().type_text(text)
+
+
+async def test_rejected_desktop_input_goes_back_to_the_vlm(env, screens):
+    outcome = await run(
+        env,
+        desktop=ValidatingDesktop(screens("white", "gray")),
+        script=[
+            press("pagina abajo"),
+            type_text("Calle 1\n# 2-3", "Dirección"),
+            press("tab"),
+            finish("Listo", OCR["gray"]),
+        ],
+    )
+
+    assert outcome.result.status is TaskStatus.TERMINADA
+    assert outcome.result.steps == 4  # las acciones rechazadas cuentan como paso
+    assert outcome.desktop.actions == [("press", {"combo": "tab"})]
+    second, third = prompt(outcome.llm, 1), prompt(outcome.llm, 2)
+    assert "1. tecla paginaabajo → acción inválida, no se ejecutó: Tecla desconocida" in second
+    assert "acción inválida, no se ejecutó: type_text no escribe caracteres de control" in third
+    assert "Aviso" not in third  # no se ejecutó nada: no cuenta como acción sin efecto
+
+
+async def test_rejected_desktop_input_enters_loop_detection(env, screens):
+    outcome = await run(
+        env,
+        desktop=ValidatingDesktop(screens("white")),
+        script=[press("pagina abajo")] * 3,
+    )
+
+    assert outcome.result.error_code is ErrorCode.LOOP_DETECTED
+    assert len(outcome.llm.calls) == 3
+    assert outcome.desktop.actions == []
+
+
+async def test_verification_cost_counts_for_the_task(env, screens):
+    outcome = await run(
+        env,
+        screens=screens("lightgray", "green"),
+        script=[
+            click(600, 700, "botón Guardar", efecto="guardar"),
+            finish("Cliente creado", OCR["green"]),
+        ],
+        gate=FakeGate(cost_per_check=0.01),
+    )
+
+    assert outcome.result.status is TaskStatus.TERMINADA
+    assert outcome.result.cost_usd == pytest.approx(0.002 + 0.02)
+    assert outcome.record.cost_usd == pytest.approx(0.022)
+    first, second = outcome.trace.steps
+    # El arnés suma costo_usd de cada paso: incluye la verificación de ese paso.
+    assert first["costo_usd"] == pytest.approx(0.011)
+    assert first["costo_verificacion_usd"] == pytest.approx(0.01)
+    assert second["costo_total_usd"] == pytest.approx(0.022)
+
+
+async def test_verification_cost_counts_for_the_budget(env, screens):
+    outcome = await run(
+        env,
+        screens=screens("lightgray", "green", "white"),
+        script=[
+            click(600, 700, "botón Guardar", efecto="guardar"),
+            click(50, 50, "menú Clientes"),
+        ],
+        gate=FakeGate(cost_per_check=0.05),
+        settings=make_settings(task_max_cost_usd=0.04),
+    )
+
+    assert outcome.result.error_code is ErrorCode.BUDGET_EXHAUSTED
+    assert len(outcome.llm.calls) == 1  # solo el VLM habría quedado bajo el tope
+    assert outcome.result.cost_usd == pytest.approx(0.051)
 
 
 async def test_websocket_lost_mid_task(env, screens):
