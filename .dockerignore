@@ -1,0 +1,8 @@
+# Lista blanca: al contexto de la imagen solo entra lo que el servicio necesita.
+# Así el .env (secretos), las trazas y los reportes nunca llegan a la imagen.
+*
+!app/
+!pyproject.toml
+!uv.lock
+!.python-version
+**/__pycache__
