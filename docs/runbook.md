@@ -71,15 +71,18 @@ AGENT_URL=$AGENTE uv run python -m eval.harness E3 E5
 El evaluador no nos da sus `task_id`, pero el agente los registra en el log del servidor (`tarea recibida` y `tarea finalizada`, esta última con `estado`, `error_code`, `cost_usd` y `duracion_s`). Con esos identificadores, `GET /tasks/{id}/traza` devuelve cada paso de la tarea: acción, observación del VLM, verificación con sus chequeos y su razón, diff, latencias, costo y código de error.
 
 ```bash
-mkdir -p eval/reports/oculta
-railway logs --service agente-vnc --lines 5000 --filter "tarea finalizada" > eval/reports/oculta/finalizadas.log
-grep -oE '[0-9a-f]{32}' eval/reports/oculta/finalizadas.log | sort -u > eval/reports/oculta/ids.txt
-while read id; do
-  curl -s $AGENTE/tasks/$id/traza -H "Authorization: Bearer $TEAM_TOKEN" > eval/reports/oculta/$id.json
-done < eval/reports/oculta/ids.txt
+railway logs --service agente-vnc --lines 5000 --filter "tarea finalizada" > eval/reports/oculta.log
 ```
 
-Las trazas ya salen saneadas: el agente quita la contraseña y los tokens antes de escribirlas. Aun así, antes de subirlas revisa que no traigan secretos:
+```bash
+uv run python -m eval.trazas bajar eval/reports/oculta.log --agente $AGENTE --salida eval/reports/oculta
+```
+
+```bash
+uv run python -m eval.trazas resumir eval/reports/oculta/*.json > eval/reports/oculta/resumen.md
+```
+
+`bajar` saca los `task_id` de cualquier texto, guarda la traza de cada uno y la sanea con los secretos de `.env`. `resumir` arma una ficha por tarea con la instrucción, el resultado, el primer paso que se desvía, los bloqueos de la verificación, el último cierre y una categoría de partida. Es el punto de partida de la sección 5. Antes de subir las trazas, revisa que no traigan secretos:
 
 ```bash
 grep -l "ftr_" eval/reports/oculta/*.json
