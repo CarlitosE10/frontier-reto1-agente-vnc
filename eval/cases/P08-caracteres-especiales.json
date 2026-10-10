@@ -1,0 +1,37 @@
+{
+  "id": "P08",
+  "nivel": "regular",
+  "instruccion": "Registra al cliente Ñandú & Cía., NIT 900111222, teléfono 3001112233, ciudad Bogotá.",
+  "estado_esperado": "terminada",
+  "diff_esperado": [
+    {
+      "entidad": "clientes",
+      "id": "nuevo",
+      "campo": "nombre",
+      "accion": "create",
+      "valor": "Ñandú & Cía."
+    },
+    {
+      "entidad": "clientes",
+      "id": "nuevo",
+      "campo": "nit",
+      "accion": "create",
+      "valor": "900111222"
+    },
+    {
+      "entidad": "clientes",
+      "id": "nuevo",
+      "campo": "telefono",
+      "accion": "create",
+      "valor": "3001112233"
+    },
+    {
+      "entidad": "clientes",
+      "id": "nuevo",
+      "campo": "ciudad",
+      "accion": "create",
+      "valor": "Bogotá"
+    }
+  ],
+  "lista_blanca": []
+}

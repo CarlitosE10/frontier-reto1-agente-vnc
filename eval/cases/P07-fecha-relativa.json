@@ -1,0 +1,24 @@
+{
+  "id": "P07",
+  "nivel": "dificil",
+  "instruccion": "Exporta el reporte de pedidos entregados ayer.",
+  "estado_esperado": "terminada",
+  "diff_esperado": [
+    {
+      "entidad": "pedidos",
+      "id": "*",
+      "campo": "*",
+      "accion": "export",
+      "valor": {
+        "lista": "pedidos",
+        "filtros": {
+          "estado": "Entregado",
+          "desde": "†",
+          "hasta": "†"
+        }
+      }
+    }
+  ],
+  "lista_blanca": [],
+  "pendiente": "Completar desde y hasta con la fecha que muestra la app menos un día (AAAA-MM-DD)."
+}
