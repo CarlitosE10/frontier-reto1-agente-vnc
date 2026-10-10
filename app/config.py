@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     vlm_coord_mode: Literal["pixels", "norm1000"] = "pixels"
     vlm_reasoning_effort: str = "low"
     verify_enabled: bool = True
+    # Modelo de la verificación (Gate). Vacío: el mismo VLM_MODEL.
+    verify_model: str = ""
 
     # Presupuestos por tarea
     task_time_budget_s: PositiveFloat = 270
@@ -83,6 +85,11 @@ class Settings(BaseSettings):
         if isinstance(value, list):
             return [str(word).strip().lower() for word in value if str(word).strip()]
         return value
+
+    @property
+    def verify_model_effective(self) -> str:
+        """El modelo con que verifica `Gate`: VERIFY_MODEL o, si está vacío, VLM_MODEL."""
+        return self.verify_model or self.vlm_model
 
 
 class EvalSettings(BaseSettings):

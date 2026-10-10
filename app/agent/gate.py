@@ -225,7 +225,7 @@ class Gate:
         failure = ""
         for attempt in range(1, VERIFY_ATTEMPTS + 1):
             try:
-                result = await self.llm.chat(self.settings.vlm_model, messages, [tool])
+                result = await self.llm.chat(self.settings.verify_model_effective, messages, [tool])
             except LLMError as error:
                 failure = f"{error.code.value}: {error}"
             else:

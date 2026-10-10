@@ -43,6 +43,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             "vlm_model": settings.vlm_model,
             "vlm_coord_mode": settings.vlm_coord_mode,
             "verify_enabled": settings.verify_enabled,
+            "verify_model": settings.verify_model_effective,
             "task_time_budget_s": settings.task_time_budget_s,
             "task_max_steps": settings.task_max_steps,
             "task_max_cost_usd": settings.task_max_cost_usd,

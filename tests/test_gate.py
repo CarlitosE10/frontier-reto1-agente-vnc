@@ -377,3 +377,32 @@ async def test_live_p01_save_with_the_document_is_approved():
     assert decision.outcome == "approve"
     assert decision.checks == ALL_YES
     assert cost < 0.002
+
+
+# --- VERIFY_MODEL ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("verify_model", "expected"),
+    [
+        ("", "anthropic/claude-haiku-5.5"),
+        ("anthropic/claude-sonnet-5.5", "anthropic/claude-sonnet-5.5"),
+    ],
+    ids=["vacío: el mismo VLM_MODEL", "otro modelo"],
+)
+async def test_both_checks_use_verify_model(verify_model, expected):
+    settings = Settings(
+        _env_file=None,
+        team_token="t",
+        openrouter_api_key="k",
+        vlm_model="anthropic/claude-haiku-5.5",
+        verify_model=verify_model,
+    )
+    llm = FakeLLM([verdict(**ALL_YES), verdict(tarea_cumplida=True)])
+    gate = Gate(llm, settings)
+    finish = FinishTask(observacion="", resumen="Listo", evidencia="Guardado")
+
+    await gate.check_action(TASK, SAVE, SCREEN, "", [])
+    await gate.check_completion(TASK, finish, SCREEN, "Guardado")
+
+    assert [call["model"] for call in llm.calls] == [expected, expected]

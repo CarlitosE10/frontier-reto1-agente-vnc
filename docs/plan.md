@@ -70,6 +70,7 @@ La raíz del repositorio es la raíz del proyecto: todos los comandos se corren 
 | `VLM_COORD_MODE` | `pixels` | `pixels` o `norm1000` |
 | `VLM_REASONING_EFFORT` | `low` | Esfuerzo de razonamiento enviado a OpenRouter |
 | `VERIFY_ENABLED` | `true` | Activa la verificación antes de acciones irreversibles y antes de reportar éxito |
+| `VERIFY_MODEL` | vacío | Modelo de la verificación (`Gate`). Vacío: usa `VLM_MODEL` |
 | `TASK_TIME_BUDGET_S` | `270` | Presupuesto de tiempo por tarea |
 | `TASK_MAX_STEPS` | `40` | Presupuesto de pasos |
 | `TASK_MAX_COST_USD` | `0.15` | Tope de gasto por tarea |

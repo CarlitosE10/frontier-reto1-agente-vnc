@@ -15,6 +15,7 @@ EXPECTED_DEFAULTS = {
     "vlm_coord_mode": "pixels",
     "vlm_reasoning_effort": "low",
     "verify_enabled": True,
+    "verify_model": "",
     "task_time_budget_s": 270,
     "task_max_steps": 40,
     "task_max_cost_usd": 0.15,
