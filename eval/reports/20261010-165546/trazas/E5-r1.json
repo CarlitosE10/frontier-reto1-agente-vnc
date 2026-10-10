@@ -1,0 +1,257 @@
+[
+  {
+    "ts": "2026-10-10T22:00:18.813+00:00",
+    "elapsed_s": 0.0,
+    "evento": "inicio",
+    "tarea": "Cambia el teléfono de Ana Torres a 3014445566."
+  },
+  {
+    "ts": "2026-10-10T22:00:23.477+00:00",
+    "elapsed_s": 4.665,
+    "t_s": 4.664,
+    "paso": 1,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/001-paso-01.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.032,
+    "costo_usd": 0.0008046,
+    "costo_total_usd": 0.000805,
+    "accion": {
+      "observacion": "Aviso de novedades v4.2 visible; lo cierro para continuar con la tarea.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 840,
+      "y": 483,
+      "objetivo": "Entendido",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "Aviso de novedades v4.2 visible; lo cierro para continuar con la tarea.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.485,
+    "diff_pct": 99.8,
+    "resultado": "la pantalla cambió (99.8 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:27.514+00:00",
+    "elapsed_s": 8.701,
+    "t_s": 8.7,
+    "paso": 2,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/002-paso-02.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.476,
+    "costo_usd": 0.0008229,
+    "costo_total_usd": 0.001628,
+    "accion": {
+      "observacion": "Pantalla principal de SIGECOM sin avisos. Busco el módulo para encontrar clientes; el menú Archivo puede contener Clientes.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 41,
+      "y": 48,
+      "objetivo": "Menú Archivo",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "Pantalla principal de SIGECOM sin avisos. Busco el módulo para encontrar clientes; el menú Archivo puede contener Clientes.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.404,
+    "diff_pct": 0.84,
+    "resultado": "la pantalla cambió (0.84 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:32.151+00:00",
+    "elapsed_s": 13.338,
+    "t_s": 13.337,
+    "paso": 3,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/003-paso-03.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 3.09,
+    "costo_usd": 0.0008611,
+    "costo_total_usd": 0.002489,
+    "accion": {
+      "observacion": "El menú Archivo sólo tiene «Inicio». Abro el menú Comercial, que probablemente contiene Clientes.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 122,
+      "y": 48,
+      "objetivo": "Menú Comercial",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "El menú Archivo sólo tiene «Inicio». Abro el menú Comercial, que probablemente contiene Clientes.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.365,
+    "diff_pct": 1.52,
+    "resultado": "la pantalla cambió (1.52 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:35.910+00:00",
+    "elapsed_s": 17.098,
+    "t_s": 17.097,
+    "paso": 4,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/004-paso-04.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.144,
+    "costo_usd": 0.0008354,
+    "costo_total_usd": 0.003324,
+    "accion": {
+      "observacion": "Menú Comercial desplegado con Maestros y Ventas. Abro Maestros para encontrar Clientes.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 140,
+      "y": 76,
+      "objetivo": "Maestros",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "Menú Comercial desplegado con Maestros y Ventas. Abro Maestros para encontrar Clientes.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.435,
+    "diff_pct": 1.19,
+    "resultado": "la pantalla cambió (1.19 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:39.709+00:00",
+    "elapsed_s": 20.896,
+    "t_s": 20.895,
+    "paso": 5,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/005-paso-05.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.173,
+    "costo_usd": 0.0008465,
+    "costo_total_usd": 0.004171,
+    "accion": {
+      "observacion": "Submenú Maestros abierto con la opción Clientes. Abro el módulo de clientes para buscar a Ana Torres.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 327,
+      "y": 76,
+      "objetivo": "Clientes",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "Submenú Maestros abierto con la opción Clientes. Abro el módulo de clientes para buscar a Ana Torres.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.464,
+    "diff_pct": 69.77,
+    "resultado": "la pantalla cambió (69.77 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:43.504+00:00",
+    "elapsed_s": 24.692,
+    "t_s": 24.691,
+    "paso": 6,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/006-paso-06.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.135,
+    "costo_usd": 0.000865,
+    "costo_total_usd": 0.005036,
+    "accion": {
+      "observacion": "Pantalla Clientes con filtros. Hago clic en Nombre para buscar Ana Torres.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 97,
+      "y": 131,
+      "objetivo": "Campo Nombre",
+      "efecto": "editar",
+      "double": false
+    },
+    "observacion": "Pantalla Clientes con filtros. Hago clic en Nombre para buscar Ana Torres.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.465,
+    "diff_pct": 0.2,
+    "resultado": "la pantalla cambió (0.2 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:47.395+00:00",
+    "elapsed_s": 28.582,
+    "t_s": 28.581,
+    "paso": 7,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/007-paso-07.png",
+    "herramienta": "type_text",
+    "latencia_vlm_s": 2.572,
+    "costo_usd": 0.0008414,
+    "costo_total_usd": 0.005877,
+    "accion": {
+      "observacion": "Pantalla Clientes con el campo Nombre enfocado; escribo Ana Torres para buscar.",
+      "fecha_app": "14/10/2026",
+      "kind": "type_text",
+      "texto": "Ana Torres",
+      "campo": "Nombre"
+    },
+    "observacion": "Pantalla Clientes con el campo Nombre enfocado; escribo Ana Torres para buscar.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.258,
+    "diff_pct": 0.02,
+    "resultado": "la pantalla cambió (0.02 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:52.355+00:00",
+    "elapsed_s": 33.543,
+    "t_s": 33.542,
+    "paso": 8,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/008-paso-08.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 3.213,
+    "costo_usd": 0.0009215,
+    "costo_total_usd": 0.006798,
+    "accion": {
+      "observacion": "El campo Nombre contiene «Ana Torres», pero la lista todavía muestra clientes sin filtrar. Aplico el filtro.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 540,
+      "y": 131,
+      "objetivo": "Botón Filtrar",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "El campo Nombre contiene «Ana Torres», pero la lista todavía muestra clientes sin filtrar. Aplico el filtro.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.566,
+    "diff_pct": 51.99,
+    "resultado": "la pantalla cambió (51.99 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T22:00:56.097+00:00",
+    "elapsed_s": 37.285,
+    "t_s": 37.284,
+    "paso": 9,
+    "captura": "traces/1b881e2c2be8471d82a1529be6e38be2/009-paso-09.png",
+    "herramienta": "fail_task",
+    "latencia_vlm_s": 3.727,
+    "costo_usd": 0.0010504,
+    "costo_total_usd": 0.007849,
+    "accion": {
+      "observacion": "Pantalla Clientes con filtro Nombre = «Ana Torres», mostrando dos filas, ambas Activas. Página 1 única.",
+      "fecha_app": "14/10/2026",
+      "kind": "fail_task",
+      "razon": "La búsqueda por nombre «Ana Torres» devuelve dos clientes con el mismo nombre. La tarea no da un dato que los distinga (NIT, código o ciudad), así que no se modificó ningún teléfono.",
+      "datos_clave": [
+        "Nombre buscado: Ana Torres",
+        "Resultados: 2",
+        "CL-0005 · Ana Torres · NIT 52345678 · Bogotá · Tel. 3112223344",
+        "CL-0031 · Ana Torres · NIT 1019876543 · Cali · Tel. 3209998877"
+      ],
+      "candidatos": [
+        {
+          "nombre": "Ana Torres (Bogotá)",
+          "identificador": "CL-0005 / NIT 52345678"
+        },
+        {
+          "nombre": "Ana Torres (Cali)",
+          "identificador": "CL-0031 / NIT 1019876543"
+        }
+      ]
+    },
+    "observacion": "Pantalla Clientes con filtro Nombre = «Ana Torres», mostrando dos filas, ambas Activas. Página 1 única.",
+    "resultado": "la tarea termina como fallida"
+  },
+  {
+    "ts": "2026-10-10T22:00:56.193+00:00",
+    "elapsed_s": 37.38,
+    "evento": "fin",
+    "estado": "fallida",
+    "error_code": null,
+    "cost_usd": 0.007848800000000001,
+    "resumen": "La búsqueda por nombre «Ana Torres» devuelve dos clientes con el mismo nombre. La tarea no da un dato que los distinga (NIT, código o ciudad), así que no se modificó ningún teléfono.\nCandidatos: Ana Torres (Bogotá) (CL-0005 / NIT 52345678); Ana Torres (Cali) (CL-0031 / NIT 1019876543).\nDatos clave: Nombre buscado: Ana Torres, Resultados: 2, CL-0005 · Ana Torres · NIT 52345678 · Bogotá · Tel. 3112223344, CL-0031 · Ana Torres · NIT 1019876543 · Cali · Tel. 3209998877."
+  }
+]
