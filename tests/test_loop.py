@@ -534,6 +534,54 @@ async def test_typing_without_effect_says_the_text_did_not_arrive(env, screens):
     assert "haz clic en el centro del campo y vuelve a escribir" in history
 
 
+async def test_typed_text_missing_from_the_screen_points_at_the_last_click(env, screens):
+    """E1 en vivo: el clic de enfoque cayó fuera del campo y ctrl+a seleccionó toda la página. La
+    pantalla cambió, pero el texto no está en ella."""
+    outcome = await run(
+        env,
+        screens=screens("white", "gray", "silver"),
+        script=[
+            click(963, 136, "campo Nombre", efecto="editar"),
+            type_text("Papelería Los Andes", "Nombre"),
+            fail("sin más pasos", []),
+        ],
+    )
+
+    history = prompt(outcome.llm, 2)
+    assert "según el OCR el texto escrito no aparece en la pantalla" in history
+    assert "el clic anterior en (963, 136) no cayó en el campo" in history
+    assert outcome.trace.steps[1]["texto_visible"] is False
+
+
+async def test_typed_text_on_the_screen_gets_no_warning(env, screens):
+    outcome = await run(
+        env,
+        screens=screens("white", "gray", "lightgray"),
+        script=[
+            click(400, 200, "campo Nombre", efecto="editar"),
+            type_text("Papelería Los Andes", "Nombre"),
+            fail("sin más pasos", []),
+        ],
+    )
+
+    assert "no aparece en la pantalla" not in prompt(outcome.llm, 2)
+    assert "texto_visible" not in outcome.trace.steps[1]
+
+
+@pytest.mark.parametrize(
+    ("typed", "screen", "visible"),
+    [
+        ("Papelería Los Andes", "Razón social Papeleria Los Andes NIT", True),  # sin tilde
+        ("3001234567", "Teléfono 300 123 4567", True),  # el OCR partió el número
+        ("Calle 45 # 12-30", "Dirección Calle 45 + 12-30", True),  # `#` mal leído
+        ("Papelería Los Andes", "Crear cliente Razón social NIT Teléfono", False),
+        ("901234567", "NIT Teléfono Ciudad", False),
+    ],
+)
+def test_text_visible(typed, screen, visible):
+    assert loop.text_visible(typed, screen) is visible
+
+
 async def test_an_informative_notice_is_closed_after_the_real_gate_approves(env, screens):
     """Un aviso ajeno a la tarea («Aceptar» cerca del clic) pasa por la verificación real, que lo
     aprueba, y se cierra. El agente y el revisor leen la regla de avisos en sus prompts."""

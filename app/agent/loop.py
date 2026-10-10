@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 from PIL import Image
 
-from app.agent.gate import Gate, is_irreversible
+from app.agent.gate import Gate, fold_tokens, is_irreversible
 from app.agent.prompts import system_prompt
 from app.agent.summary import build_summary, sanitize
 from app.agent.tools import TOOLS, ActionError, parse_action
@@ -114,6 +114,7 @@ class _Run:
         self.invalid_replies = 0
         self.no_effect = 0
         self.in_form = False  # hubo escritura desde el último clic: Enter puede guardar
+        self.last_click: str | None = None  # punto del último clic, como lo envió el VLM
         self.fecha_app: str | None = None
         self.fecha_app_known = False
         self.size = (0, 0)
@@ -229,6 +230,8 @@ class _Run:
         self._check_time()
         self._check_cancel()
         after, result = await self._execute(desktop, action, screen, log)
+        if isinstance(action, Click):
+            self.last_click = f"({chat.arguments.get('x')}, {chat.arguments.get('y')})"
         self._end_step(log, label, result)
         return after
 
@@ -431,6 +434,21 @@ class _Run:
             self.no_effect = 0
             self.evidence.add(after)
             result = f"la pantalla cambió ({log['diff_pct']} % de los píxeles)"
+            if isinstance(action, TypeText) and not await self._typed_text_visible(action, after):
+                # E1: el clic de enfoque cayó fuera del campo y ctrl+a seleccionó toda la página.
+                # La pantalla cambió (la selección), pero el texto no entró en ningún campo.
+                log["texto_visible"] = False
+                result += (
+                    "; pero según el OCR el texto escrito no aparece en la pantalla: puede que "
+                    "ningún campo tuviera el foco"
+                )
+                if self.last_click:
+                    result += f" (el clic anterior en {self.last_click} no cayó en el campo)"
+                result += (
+                    ". Mira la captura: si el texto no está dentro del campo, haz clic en el "
+                    "centro del recuadro del campo, dentro de su borde y en otro punto, y vuelve "
+                    "a escribir"
+                )
         elif isinstance(action, Wait):
             result = "la pantalla no cambió"
         else:
@@ -455,6 +473,22 @@ class _Run:
         if not stable:
             result += "; la pantalla no terminó de estabilizarse"
         return after, result
+
+    async def _typed_text_visible(self, action: TypeText, after: Image.Image) -> bool:
+        """El OCR de la pantalla siguiente muestra lo que se escribió. Si el OCR falla, se da
+        por visible: el aviso es una ayuda, no un bloqueo."""
+        try:
+            async with self._budget():
+                if self.evidence.enabled:
+                    text = await self.evidence.current_text()  # ya arrancó con `add(after)`
+                else:
+                    text = await asyncio.to_thread(_ocr, after)
+        except _Stop:
+            raise
+        except Exception:
+            logger.warning("Falló el OCR del texto escrito", exc_info=True)
+            return True
+        return text_visible(action.texto, text)
 
     async def _settle(
         self, desktop: DesktopSession, before: Image.Image
@@ -546,6 +580,10 @@ class _Evidence:
         self._tasks: set[asyncio.Task[str]] = set()
         self._count = 0
 
+    @property
+    def enabled(self) -> bool:
+        return self._enabled
+
     def add(self, image: Image.Image) -> None:
         if not self._enabled:
             return
@@ -577,6 +615,22 @@ class _Evidence:
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+
+
+def text_visible(typed: str, screen_text: str) -> bool:
+    """`typed` aparece en `screen_text`: entero sin espacios, o al menos la mitad de sus palabras.
+
+    El OCR puede partir o leer mal alguna palabra, y un campo angosto puede cortar el final; por
+    eso basta con la mitad.
+    """
+    words = fold_tokens(typed)
+    if not words:
+        return True
+    screen_words = fold_tokens(screen_text)
+    if "".join(words) in "".join(screen_words):
+        return True
+    seen = set(screen_words)
+    return 2 * sum(word in seen for word in words) >= len(words)
 
 
 def _ocr(image: Image.Image) -> str:

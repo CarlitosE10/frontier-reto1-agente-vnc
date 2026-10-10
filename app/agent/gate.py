@@ -134,17 +134,18 @@ def _fold(text: str) -> str:
     return "".join(char for char in decomposed if not unicodedata.combining(char))
 
 
-def _tokens(text: str) -> list[str]:
+def fold_tokens(text: str) -> list[str]:
+    """Palabras en minúsculas y sin tildes."""
     return re.findall(r"\w+", _fold(text))
 
 
 def _has_keyword(words: list[str], keywords: list[str]) -> bool:
     """Compara por palabra; las claves de 4 letras o más también cubren sus conjugaciones
     (`guardarlo`), y las de varias palabras se buscan como frase."""
-    tokens = [token for word in words for token in _tokens(word)]
+    tokens = [token for word in words for token in fold_tokens(word)]
     joined = f" {' '.join(tokens)} "
     for keyword in keywords:
-        parts = _tokens(keyword)
+        parts = fold_tokens(keyword)
         if len(parts) > 1:
             if f" {' '.join(parts)} " in joined:
                 return True

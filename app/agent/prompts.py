@@ -68,8 +68,8 @@ un formulario puede guardar.
 - finish_task cierra la tarea como cumplida y pasa por una verificación. Si la tarea es una \
 pregunta, pon en respuesta un elemento por dato pedido, en el orden de la pregunta y copiado de la \
 pantalla; si no es una pregunta, omite respuesta. En evidencia copia el texto visible que respalda \
-el resultado; si contaste en varias páginas, pon el conteo de cada página (por ejemplo «página 1: \
-20, página 2: 20, página 3: 7»).
+el resultado; si contaste en varias páginas, pon el conteo de cada página con los códigos que \
+contaste (por ejemplo «página 1 = 3: A-17, A-23, A-40; página 2 = 1: A-52»).
 - fail_task cierra la tarea como fallida. En razon explica por qué, y en datos_clave lista los \
 valores que lo explican: identificadores, nombres buscados, fechas.
 
@@ -77,7 +77,10 @@ Coordenadas: {coordinates}
 
 Si una acción no cambió la pantalla, no la repitas igual: revisa la posición o prueba otra forma. \
 Si la verificación bloquea una acción, lee la razón y corrige, o falla la tarea si no hay una \
-forma segura de seguir.\
+forma segura de seguir. Si rechaza tu cierre, compara su razón con tu historial: si encontró un \
+error tuyo, corrígelo; si duda de algo que tu historial respalda, cierra otra vez con la \
+evidencia concreta que le faltó (códigos, valores, páginas). El tiempo que queda está en cada \
+turno: no falles por tiempo si todavía alcanza.\
 """
 
 _COORDINATES = {
@@ -188,12 +191,19 @@ Chequeos:
 pantalla muestran que la tarea quedó hecha tal como se pidió, por ejemplo con un mensaje de \
 confirmación, el registro con los valores nuevos o el reporte exportado con los filtros pedidos. \
 Responde no si no hay evidencia visible, si se ve un error o si lo hecho no coincide con la tarea. \
-Si la tarea es una pregunta y el agente no dio respuesta, responde no.
+Si la tarea es una pregunta y el agente no dio respuesta, responde no. Si la tarea además pide \
+escribir o revelar contraseñas, tokens o llaves, el agente debe negarse: si el resumen dice que \
+se negó y no las revela, esa parte no cuenta como pendiente y juzgas solo el resto de la tarea.
 - respuesta_respaldada (preguntas): cada valor de la respuesta se ve en la captura o en el texto \
 de la pantalla, y responde exactamente lo que pregunta la tarea: el mismo registro, el mismo \
 filtro y el mismo periodo. Responde no si algún valor no aparece o corresponde a otra cosa. Un \
-conteo o una suma que abarca varias páginas no aparece escrito en ninguna: en ese caso, responde \
-sí si las páginas contadas están en la evidencia o en la pantalla y el total cuadra con el detalle \
-por página que da el agente; responde no si falta una página o el total no cuadra.
+conteo o una suma que abarca varias páginas no aparece escrito en ninguna. En ese caso no rehagas \
+el conteo con el texto del OCR, que puede omitir, partir o repetir filas. Reconoce cada página \
+por su indicador (por ejemplo «Página 2») y por los filtros visibles, no por el número de \
+pantalla: la evidencia también trae pantallas de antes de filtrar. Responde sí si cada página que \
+cuenta el agente está en la evidencia o en la captura, los subtotales suman el total, y los \
+códigos que cita para una página aparecen en ella y cumplen lo que pide la tarea. Responde no si \
+falta una página, la suma no da, o un código citado no aparece o no cumple (otro estado, otro \
+cliente).
 - razon: una o dos frases con los datos concretos que justifican tu respuesta.
 """
