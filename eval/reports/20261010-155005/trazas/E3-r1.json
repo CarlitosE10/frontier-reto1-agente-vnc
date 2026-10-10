@@ -1,0 +1,131 @@
+[
+  {
+    "ts": "2026-10-10T20:52:23.145+00:00",
+    "elapsed_s": 0.001,
+    "evento": "inicio",
+    "tarea": "¿Cuántas facturas vencidas tiene Ferretería Ruiz?"
+  },
+  {
+    "ts": "2026-10-10T20:52:31.031+00:00",
+    "elapsed_s": 7.887,
+    "t_s": 7.885,
+    "paso": 1,
+    "captura": "traces/321df4ab86934084b42c45fcd4a68e6e/001-paso-01.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.534,
+    "costo_usd": 0.0007714,
+    "costo_total_usd": 0.000771,
+    "accion": {
+      "observacion": "Pantalla de bienvenida de SIGECOM. Busco el módulo de cartera para consultar facturas vencidas.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 122,
+      "y": 48,
+      "objetivo": "Menú Cartera",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "Pantalla de bienvenida de SIGECOM. Busco el módulo de cartera para consultar facturas vencidas.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.401,
+    "diff_pct": 0.0,
+    "error_code": "CLICK_NO_EFFECT",
+    "resultado": "sin efecto visible en la pantalla"
+  },
+  {
+    "ts": "2026-10-10T20:52:35.025+00:00",
+    "elapsed_s": 11.88,
+    "t_s": 11.879,
+    "paso": 2,
+    "captura": "traces/321df4ab86934084b42c45fcd4a68e6e/002-paso-02.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.422,
+    "costo_usd": 0.0007744,
+    "costo_total_usd": 0.001546,
+    "accion": {
+      "observacion": "Pantalla de bienvenida. Abro el menú Cartera para buscar facturas vencidas.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 203,
+      "y": 48,
+      "objetivo": "Menú Cartera",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "Pantalla de bienvenida. Abro el menú Cartera para buscar facturas vencidas.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.376,
+    "diff_pct": 0.84,
+    "resultado": "la pantalla cambió (0.84 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T20:52:39.456+00:00",
+    "elapsed_s": 16.312,
+    "t_s": 16.311,
+    "paso": 3,
+    "captura": "traces/321df4ab86934084b42c45fcd4a68e6e/003-paso-03.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 2.435,
+    "costo_usd": 0.0007883,
+    "costo_total_usd": 0.002334,
+    "accion": {
+      "observacion": "Menú Cartera desplegado con la opción Facturas. Abro Facturas para consultar facturas vencidas.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 208,
+      "y": 76,
+      "objetivo": "Facturas (menú Cartera)",
+      "efecto": "navegar",
+      "double": false
+    },
+    "observacion": "Menú Cartera desplegado con la opción Facturas. Abro Facturas para consultar facturas vencidas.",
+    "irreversible": false,
+    "latencia_vnc_s": 1.784,
+    "diff_pct": 66.42,
+    "resultado": "la pantalla cambió (66.42 % de los píxeles)"
+  },
+  {
+    "ts": "2026-10-10T20:52:49.946+00:00",
+    "elapsed_s": 26.801,
+    "t_s": 26.8,
+    "paso": 4,
+    "captura": "traces/321df4ab86934084b42c45fcd4a68e6e/004-paso-04.png",
+    "herramienta": "click",
+    "latencia_vlm_s": 4.89,
+    "costo_usd": 0.0019061,
+    "costo_total_usd": 0.00424,
+    "accion": {
+      "observacion": "Pantalla Facturas con filtros. Enfoco el campo Cliente para buscar Ferretería Ruiz.",
+      "fecha_app": "14/10/2026",
+      "kind": "click",
+      "x": 97,
+      "y": 131,
+      "objetivo": "Campo Cliente",
+      "efecto": "editar",
+      "double": false
+    },
+    "observacion": "Pantalla Facturas con filtros. Enfoco el campo Cliente para buscar Ferretería Ruiz.",
+    "irreversible": true,
+    "costo_verificacion_usd": 0.0009554,
+    "latencia_verificacion_s": 5.404,
+    "verificacion": {
+      "outcome": "approve",
+      "reason": "El clic está sobre el campo «Cliente» del filtro de Facturas, que hace falta para buscar a Ferretería Ruiz; no afecta ningún registro. En la lista visible, todas las facturas de «Ferretería Ruiz» (FV-10004, FV-10047, FV-10073, FV-10206) corresponden a un mismo nombre de cliente, sin homónimos distintos. El campo está vacío y no se introduce ningún valor en este paso, así que no hay valor incorrecto que guardar o usar.",
+      "checks": {
+        "dentro_de_tarea": true,
+        "registro_correcto": true,
+        "valores_correctos": true
+      }
+    },
+    "error_code": "WS_DISCONNECTED"
+  },
+  {
+    "ts": "2026-10-10T20:52:49.948+00:00",
+    "elapsed_s": 26.803,
+    "evento": "fin",
+    "estado": "fallida",
+    "error_code": "WS_DISCONNECTED",
+    "cost_usd": 0.0042402,
+    "resumen": "No se completó la tarea.\nCódigo de error: WS_DISCONNECTED (se perdió la conexión con el escritorio)."
+  }
+]
