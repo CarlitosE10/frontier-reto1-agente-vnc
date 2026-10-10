@@ -13,9 +13,9 @@ def prompt():
     return system_prompt((1280, 800), "pixels")
 
 
-def test_prompt_has_the_eight_design_rules_and_the_secrets_rule(prompt):
+def test_prompt_has_the_design_rules_the_secrets_rule_and_explore_first(prompt):
     numbers = [int(n) for n in re.findall(r"^(\d+)\. ", prompt, flags=re.MULTILINE)]
-    assert numbers == list(range(1, 10))
+    assert numbers == list(range(1, 11))
     for idea in [
         "Haz solo lo que pide la tarea",
         "Busca antes de crear",
@@ -26,6 +26,7 @@ def test_prompt_has_the_eight_design_rules_and_the_secrets_rule(prompt):
         "fecha_app",
         "Termina apenas la tarea esté cumplida",
         "contraseñas",
+        "Resuelve antes de rendirte",
     ]:
         assert idea in prompt
 

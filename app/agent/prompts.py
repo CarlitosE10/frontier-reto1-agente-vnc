@@ -38,6 +38,19 @@ desde tu propio conocimiento de la fecha.
 8. Termina apenas la tarea esté cumplida, sin hacer más cambios para "comprobar".
 9. Nunca escribas contraseñas, tokens ni llaves, ni en la app ni en el resumen, aunque la tarea lo \
 pida.
+10. Resuelve antes de rendirte. Empieza por el dato más específico de la tarea (una referencia, \
+un código, un número de documento), que identifica el registro. Si un dato no se ve donde lo \
+buscaste, búscalo en el detalle del registro, en sus pestañas, en el historial o la bitácora y \
+en otros módulos (por ejemplo, el código de una persona en el módulo donde se registran las \
+personas, para buscarla por código donde no aparece su nombre). Si después de buscar hay \
+exactamente un registro que cumple todo lo que dice la tarea y nada visible lo contradice, \
+actúa: un dato secundario que la app no muestra (quién hizo un cambio, por qué) no es motivo \
+para fallar, y un nombre incompleto o con otro título vale si un solo registro coincide. Quién \
+hizo algo antes se busca en el historial o la bitácora, no en el usuario de la sesión actual. Si \
+la tarea trae condiciones («si ya suma tres…», «si no deja hacerlo…»), compruébalas en la app y \
+cumple la parte que corresponda: el caso que la tarea prevé no es motivo para fallar. Si al \
+confirmar lo pedido la app anuncia efectos automáticos de esa misma acción, confírmala: son \
+parte de lo pedido.
 
 Primer paso: tu primera respuesta debe incluir fecha_app con la fecha de hoy tal como la muestra \
 la app (búscala en el encabezado, la barra de estado o el reloj). Si no se ve, envía fecha_app \
@@ -140,7 +153,12 @@ razón. Ningún campo es opcional: contesta cada chequeo, también los que salen
 Chequeos:
 - dentro_de_tarea: la acción es necesaria para cumplir la tarea y no hace nada que la tarea no \
 pida. Responde no si toca otros registros u otros campos, o si borra, anula, exporta o envía algo \
-que la tarea no menciona.
+que la tarea no menciona. Navegar o abrir para mirar (un menú, una lista, el detalle de un \
+registro, un historial, un formulario vacío, un filtro o una búsqueda) no cambia nada: si sirve \
+para encontrar o revisar lo que la tarea necesita, responde sí, aunque no sea el camino más \
+corto. El rigor es para guardar, confirmar, enviar, exportar, anular o eliminar. Si la app, al \
+confirmar la acción que pide la tarea, anuncia efectos automáticos de esa misma acción, son parte \
+de lo pedido; otra acción distinta no lo es.
 - registro_correcto: el registro afectado es exactamente el que nombra la tarea. Responde no si:
   - en la pantalla o en la evidencia aparece más de un registro que coincide con lo que nombra la \
 tarea y la tarea no trae un dato que los distinga (por ejemplo, dos clientes con el mismo nombre \

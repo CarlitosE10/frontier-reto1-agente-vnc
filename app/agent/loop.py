@@ -486,7 +486,8 @@ class _Run:
             elif isinstance(action, TypeText):
                 result += (
                     "; el texto no llegó a ningún campo (salvo que el campo ya mostrara ese mismo "
-                    "valor): haz clic en el centro del campo y vuelve a escribir"
+                    "valor): haz clic en el centro del campo y vuelve a escribir. Si el campo es "
+                    "una lista desplegable, no se escribe: ábrela con un clic y elige la opción"
                 )
         if not stable:
             result += "; la pantalla no terminó de estabilizarse"
