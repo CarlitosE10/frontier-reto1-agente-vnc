@@ -1,0 +1,268 @@
+{
+  "tamano": [
+    1280,
+    800
+  ],
+  "elementos": [
+    {
+      "texto": "Fecha: 10/10/2026",
+      "tipo": "fecha",
+      "box": [
+        1000,
+        11,
+        1108,
+        21
+      ]
+    },
+    {
+      "texto": "Clientes",
+      "tipo": "menu",
+      "box": [
+        16,
+        40,
+        63,
+        50
+      ]
+    },
+    {
+      "texto": "Facturas",
+      "tipo": "menu",
+      "box": [
+        91.0,
+        40,
+        142.0,
+        50
+      ]
+    },
+    {
+      "texto": "Pedidos",
+      "tipo": "menu",
+      "box": [
+        170.0,
+        40,
+        217.0,
+        50
+      ]
+    },
+    {
+      "texto": "Reportes",
+      "tipo": "menu",
+      "box": [
+        245.0,
+        40,
+        297.0,
+        53
+      ]
+    },
+    {
+      "texto": "Ayuda",
+      "tipo": "menu",
+      "box": [
+        324.0,
+        40,
+        362.0,
+        53
+      ]
+    },
+    {
+      "texto": "Nuevo cliente",
+      "tipo": "titulo",
+      "box": [
+        256,
+        102,
+        360,
+        114
+      ]
+    },
+    {
+      "texto": "Razón social:",
+      "tipo": "etiqueta",
+      "box": [
+        280,
+        163,
+        359,
+        173
+      ]
+    },
+    {
+      "texto": "Papelería Los Andes",
+      "tipo": "valor",
+      "box": [
+        466,
+        164,
+        580,
+        176
+      ]
+    },
+    {
+      "texto": "NIT:",
+      "tipo": "etiqueta",
+      "box": [
+        280,
+        209,
+        305,
+        219
+      ]
+    },
+    {
+      "texto": "901234567",
+      "tipo": "valor",
+      "box": [
+        466,
+        211,
+        529,
+        220
+      ]
+    },
+    {
+      "texto": "Teléfono:",
+      "tipo": "etiqueta",
+      "box": [
+        280,
+        255,
+        334,
+        265
+      ]
+    },
+    {
+      "texto": "3157654321",
+      "tipo": "valor",
+      "box": [
+        466,
+        257,
+        536,
+        266
+      ]
+    },
+    {
+      "texto": "Dirección:",
+      "tipo": "etiqueta",
+      "box": [
+        280,
+        301,
+        338,
+        311
+      ]
+    },
+    {
+      "texto": "Calle 45 # 12-30",
+      "tipo": "valor",
+      "box": [
+        466,
+        303,
+        557,
+        312
+      ]
+    },
+    {
+      "texto": "Ciudad:",
+      "tipo": "etiqueta",
+      "box": [
+        280,
+        347,
+        324,
+        357
+      ]
+    },
+    {
+      "texto": "Bogotá",
+      "tipo": "valor",
+      "box": [
+        466,
+        348,
+        505,
+        360
+      ]
+    },
+    {
+      "texto": "Correo electrónico:",
+      "tipo": "etiqueta",
+      "box": [
+        280,
+        393,
+        389,
+        403
+      ]
+    },
+    {
+      "texto": "compras@papeleria.co",
+      "tipo": "valor",
+      "box": [
+        466,
+        395,
+        593,
+        407
+      ]
+    },
+    {
+      "texto": "Categoría:",
+      "tipo": "etiqueta",
+      "box": [
+        280,
+        439,
+        340,
+        452
+      ]
+    },
+    {
+      "texto": "Papelería",
+      "tipo": "opcion",
+      "box": [
+        480,
+        440,
+        535,
+        453
+      ]
+    },
+    {
+      "texto": "Ferretería",
+      "tipo": "opcion",
+      "box": [
+        620,
+        440,
+        676,
+        450
+      ]
+    },
+    {
+      "texto": "Droguería",
+      "tipo": "opcion",
+      "box": [
+        760,
+        440,
+        816,
+        453
+      ]
+    },
+    {
+      "texto": "Guardar",
+      "tipo": "boton",
+      "box": [
+        642,
+        611,
+        698,
+        621
+      ]
+    },
+    {
+      "texto": "Cancelar",
+      "tipo": "boton",
+      "box": [
+        780,
+        611,
+        841,
+        621
+      ]
+    },
+    {
+      "texto": "Listo · 12 clientes registrados",
+      "tipo": "estado",
+      "box": [
+        16,
+        782,
+        175,
+        794
+      ]
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+{
+  "tamano": [
+    1280,
+    800
+  ],
+  "elementos": [
+    {
+      "texto": "Fecha: 10/10/2026",
+      "tipo": "fecha",
+      "box": [
+        1000,
+        11,
+        1108,
+        21
+      ]
+    },
+    {
+      "texto": "Clientes",
+      "tipo": "menu",
+      "box": [
+        16,
+        40,
+        63,
+        50
+      ]
+    },
+    {
+      "texto": "Facturas",
+      "tipo": "menu",
+      "box": [
+        91.0,
+        40,
+        142.0,
+        50
+      ]
+    },
+    {
+      "texto": "Pedidos",
+      "tipo": "menu",
+      "box": [
+        170.0,
+        40,
+        217.0,
+        50
+      ]
+    },
+    {
+      "texto": "Reportes",
+      "tipo": "menu",
+      "box": [
+        245.0,
+        40,
+        297.0,
+        53
+      ]
+    },
+    {
+      "texto": "Ayuda",
+      "tipo": "menu",
+      "box": [
+        324.0,
+        40,
+        362.0,
+        53
+      ]
+    },
+    {
+      "texto": "Clientes",
+      "tipo": "titulo",
+      "box": [
+        40,
+        83,
+        102,
+        95
+      ]
+    },
+    {
+      "texto": "Buscar:",
+      "tipo": "etiqueta",
+      "box": [
+        40,
+        118,
+        85,
+        128
+      ]
+    },
+    {
+      "texto": "Ana Torres",
+      "tipo": "valor",
+      "box": [
+        105,
+        119,
+        166,
+        128
+      ]
+    },
+    {
+      "texto": "Buscar",
+      "tipo": "boton",
+      "box": [
+        439,
+        118,
+        483,
+        128
+      ]
+    },
+    {
+      "texto": "Código",
+      "tipo": "encabezado",
+      "box": [
+        48,
+        169,
+        93,
+        182
+      ]
+    },
+    {
+      "texto": "Nombre",
+      "tipo": "encabezado",
+      "box": [
+        168,
+        169,
+        217,
+        179
+      ]
+    },
+    {
+      "texto": "Documento",
+      "tipo": "encabezado",
+      "box": [
+        428,
+        169,
+        499,
+        179
+      ]
+    },
+    {
+      "texto": "Ciudad",
+      "tipo": "encabezado",
+      "box": [
+        588,
+        169,
+        632,
+        179
+      ]
+    },
+    {
+      "texto": "Teléfono",
+      "tipo": "encabezado",
+      "box": [
+        768,
+        169,
+        822,
+        179
+      ]
+    },
+    {
+      "texto": "CL-0003",
+      "tipo": "celda",
+      "box": [
+        48,
+        198,
+        96,
+        207
+      ]
+    },
+    {
+      "texto": "Ana Torres",
+      "tipo": "celda",
+      "box": [
+        167,
+        198,
+        228,
+        207
+      ]
+    },
+    {
+      "texto": "52345678",
+      "tipo": "celda",
+      "box": [
+        428,
+        198,
+        484,
+        207
+      ]
+    },
+    {
+      "texto": "Pereira",
+      "tipo": "celda",
+      "box": [
+        588,
+        198,
+        628,
+        207
+      ]
+    },
+    {
+      "texto": "3104567890",
+      "tipo": "celda",
+      "box": [
+        768,
+        198,
+        838,
+        207
+      ]
+    },
+    {
+      "texto": "CL-0007",
+      "tipo": "celda",
+      "box": [
+        48,
+        226,
+        96,
+        235
+      ]
+    },
+    {
+      "texto": "Distribuciones El Faro",
+      "tipo": "celda",
+      "box": [
+        168,
+        225,
+        288,
+        235
+      ]
+    },
+    {
+      "texto": "900765432",
+      "tipo": "celda",
+      "box": [
+        428,
+        226,
+        491,
+        235
+      ]
+    },
+    {
+      "texto": "Medellín",
+      "tipo": "celda",
+      "box": [
+        588,
+        225,
+        635,
+        235
+      ]
+    },
+    {
+      "texto": "6045551234",
+      "tipo": "celda",
+      "box": [
+        768,
+        226,
+        838,
+        235
+      ]
+    },
+    {
+      "texto": "CL-0011",
+      "tipo": "celda",
+      "box": [
+        48,
+        254,
+        96,
+        263
+      ]
+    },
+    {
+      "texto": "Ana Torres",
+      "tipo": "celda",
+      "box": [
+        167,
+        254,
+        228,
+        263
+      ]
+    },
+    {
+      "texto": "1019876543",
+      "tipo": "celda",
+      "box": [
+        428,
+        254,
+        498,
+        263
+      ]
+    },
+    {
+      "texto": "Bogotá",
+      "tipo": "celda",
+      "box": [
+        588,
+        253,
+        627,
+        265
+      ]
+    },
+    {
+      "texto": "3157654321",
+      "tipo": "celda",
+      "box": [
+        768,
+        254,
+        838,
+        263
+      ]
+    },
+    {
+      "texto": "CL-0012",
+      "tipo": "celda",
+      "box": [
+        48,
+        282,
+        96,
+        291
+      ]
+    },
+    {
+      "texto": "Ferretería Ruiz",
+      "tipo": "celda",
+      "box": [
+        168,
+        281,
+        249,
+        291
+      ]
+    },
+    {
+      "texto": "800123456",
+      "tipo": "celda",
+      "box": [
+        428,
+        282,
+        491,
+        291
+      ]
+    },
+    {
+      "texto": "Cali",
+      "tipo": "celda",
+      "box": [
+        588,
+        282,
+        610,
+        291
+      ]
+    },
+    {
+      "texto": "6023334455",
+      "tipo": "celda",
+      "box": [
+        768,
+        282,
+        838,
+        291
+      ]
+    },
+    {
+      "texto": "4 resultados",
+      "tipo": "estado",
+      "box": [
+        40,
+        315,
+        107,
+        325
+      ]
+    }
+  ]
+}

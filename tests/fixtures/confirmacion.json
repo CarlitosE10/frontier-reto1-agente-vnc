@@ -1,0 +1,58 @@
+{
+  "tamano": [
+    1280,
+    800
+  ],
+  "elementos": [
+    {
+      "texto": "Confirmación",
+      "tipo": "titulo",
+      "box": [
+        452,
+        309,
+        539,
+        319
+      ]
+    },
+    {
+      "texto": "¿Desea guardar el cliente",
+      "tipo": "mensaje",
+      "box": [
+        464,
+        355,
+        610,
+        368
+      ]
+    },
+    {
+      "texto": "Papelería Los Andes?",
+      "tipo": "mensaje",
+      "box": [
+        464,
+        377,
+        585,
+        390
+      ]
+    },
+    {
+      "texto": "Sí",
+      "tipo": "boton",
+      "box": [
+        574,
+        430,
+        587,
+        440
+      ]
+    },
+    {
+      "texto": "No",
+      "tipo": "boton",
+      "box": [
+        691,
+        431,
+        709,
+        440
+      ]
+    }
+  ]
+}
